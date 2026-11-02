@@ -1,0 +1,9 @@
+# JLCPCB 多層 (4 層以上, 1oz)。jlcpcb-standard の差分だけ。公式: https://jlcpcb.com/capabilities/pcb-capabilities (2026-10-14 22:10 JST 確認)
+file: {layer: factory, name: jlcpcb-multilayer, extends: [factory/jlcpcb-standard], source: "https://jlcpcb.com/capabilities/pcb-capabilities"}
+rules:
+  - {id: track.min_width,      value: 0.09, verified: true, ref: "Traces 1oz Multilayer 0.09/0.09 mm"}
+  - {id: copper.min_clearance, value: 0.09, verified: true, ref: "同上"}
+  - {id: pth.min_annular,      value: 0.15, verified: true, ref: "PTH annular ring Multilayer 1oz 絶対最小 0.15"}
+  - {id: pth.rec_annular,      value: 0.20, verified: true, ref: "同 推奨 0.20"}
+  - {id: board.max_size_2l, enabled: false}
+  - {id: board.max_size_4l, check: board_size, value: {max: [663, 593]}, verified: true, ref: "Maximum Dimensions FR4 4-layer 663×593 (6 層以上は 656×586)"}

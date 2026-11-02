@@ -1,0 +1,17 @@
+# SN74AVC2T245RSWR (TI) の出力特性
+lcsc: C128418
+mpn: SN74AVC2T245RSWR
+maker: TI
+datasheet: {title: "SN74AVC2T245 Dual-Bit Dual-Supply Bus Transceiver", doc: "SCES692E", rev: "REVISED SEPTEMBER 2024", url: "https://www.ti.com/lit/ds/symlink/sn74avc2t245.pdf"}
+signal:
+  default:
+    tr_ns:
+      value: 1.0
+      basis: assumed
+      reason: "データシートに出力の立ち上がり時間の規定なし (p.9 の CpdA の条件 tr = tf = 1 ns は入力)。AVC ファミリの典型"
+      calc: "3.3 V 出力で 0.8〜1.5 ns の速い側を丸めて 1.0 ns"
+    f_max_mhz:
+      value: 250
+      basis: datasheet
+      src: {page: 1, table: "1 Features", item: "Typical Data Rates 500 Mbps (1.8 V to 3.3 V Level-Shifting) → 基本波 250 MHz"}
+    r_out_ohm: {value: 25, basis: assumed, reason: "AVC の動的出力抵抗の典型", calc: "20〜30 Ω の中央"}

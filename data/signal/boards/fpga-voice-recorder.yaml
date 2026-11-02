@@ -1,0 +1,204 @@
+# ネットごとの信号特性 (リターンパス P20/P21 の点数に使う)。形式は data/signal/README.md
+board: fpga-voice-recorder
+generated_by: 'tools/review/signal_table.py (手で直す値は overrides: に書く。nets: は再生成で上書き)'
+defaults:
+  c_load_pf:
+    value: 10
+    basis: assumed
+    reason: 直列抵抗の後ろの負荷 (受け側の入力容量 3〜5 pF + 配線 20〜50 mm × 0.1 pF/mm)
+    calc: 5 + 5 = 10 pF
+  v_mm_per_ns:
+    value: 150
+    basis: assumed
+    reason: FR-4 マイクロストリップの伝搬速度 (実効比誘電率 3〜4)
+    calc: c / √4 = 300 / 2 = 150 mm/ns
+  hs_usb: false
+overrides: {}
+nets:
+  /BTN_DOWN:
+    driver: スイッチ SW4
+    tr_ns: &id001
+      value: 10
+      basis: assumed
+      reason: スイッチ (SW*) がつながるネット。MCU 側は入力で、エッジは接点とプルアップ・ネットの容量で決まり、繰り返しもまれ
+      calc: 接点の閉じ始めは数 ns だがチャタリングの中の 1 回で、プルアップ 10 kΩ × 1 nF の RC を入れる設計が多い → 速い側を 10 ns と置く (要確認、overrides で直す)
+    tr_eff_ns: 10.0
+    f_max_mhz: &id002
+      value: 0.001
+      basis: assumed
+      reason: 人の操作
+      calc: 1 kHz 未満
+    series_r: null
+    source: 'families.yaml switch_input: tr 仮定: スイッチ (SW*) がつながるネット。MCU 側は入力で、エッジは接点とプルアップ・ネットの容量で決まり、繰り返しもまれ (接点の閉じ始めは数 ns だがチャタリングの中の 1 回で、プルアップ 10 kΩ × 1 nF の RC を入れる設計が多い → 速い側を 10 ns と置く (要確認、overrides
+      で直す)) / f 仮定: 人の操作 (1 kHz 未満)'
+    certainty: 仮
+  /BTN_PLAY:
+    driver: スイッチ SW2
+    tr_ns: *id001
+    tr_eff_ns: 10.0
+    f_max_mhz: *id002
+    series_r: null
+    source: 'families.yaml switch_input: tr 仮定: スイッチ (SW*) がつながるネット。MCU 側は入力で、エッジは接点とプルアップ・ネットの容量で決まり、繰り返しもまれ (接点の閉じ始めは数 ns だがチャタリングの中の 1 回で、プルアップ 10 kΩ × 1 nF の RC を入れる設計が多い → 速い側を 10 ns と置く (要確認、overrides
+      で直す)) / f 仮定: 人の操作 (1 kHz 未満)'
+    certainty: 仮
+  /BTN_REC:
+    driver: スイッチ SW1
+    tr_ns: *id001
+    tr_eff_ns: 10.0
+    f_max_mhz: *id002
+    series_r: null
+    source: 'families.yaml switch_input: tr 仮定: スイッチ (SW*) がつながるネット。MCU 側は入力で、エッジは接点とプルアップ・ネットの容量で決まり、繰り返しもまれ (接点の閉じ始めは数 ns だがチャタリングの中の 1 回で、プルアップ 10 kΩ × 1 nF の RC を入れる設計が多い → 速い側を 10 ns と置く (要確認、overrides
+      で直す)) / f 仮定: 人の操作 (1 kHz 未満)'
+    certainty: 仮
+  /BTN_UP:
+    driver: スイッチ SW3
+    tr_ns: *id001
+    tr_eff_ns: 10.0
+    f_max_mhz: *id002
+    series_r: null
+    source: 'families.yaml switch_input: tr 仮定: スイッチ (SW*) がつながるネット。MCU 側は入力で、エッジは接点とプルアップ・ネットの容量で決まり、繰り返しもまれ (接点の閉じ始めは数 ns だがチャタリングの中の 1 回で、プルアップ 10 kΩ × 1 nF の RC を入れる設計が多い → 速い側を 10 ns と置く (要確認、overrides
+      で直す)) / f 仮定: 人の操作 (1 kHz 未満)'
+    certainty: 仮
+  /CC1:
+    driver: コネクタの先 (外部)
+    tr_ns: &id003
+      value: 2.0
+      basis: assumed
+      reason: コネクタの先 (相手側のドライバ不明)。JTAG ターゲット・UART 相手の典型的な 3.3 V CMOS
+      calc: 1〜5 ns の速い側寄り
+    tr_eff_ns: 2.0
+    f_max_mhz: null
+    series_r: null
+    source: 'families.yaml external: tr 仮定: コネクタの先 (相手側のドライバ不明)。JTAG ターゲット・UART 相手の典型的な 3.3 V CMOS (1〜5 ns の速い側寄り)'
+    certainty: 仮
+  /CC2:
+    driver: コネクタの先 (外部)
+    tr_ns: *id003
+    tr_eff_ns: 2.0
+    f_max_mhz: null
+    series_r: null
+    source: 'families.yaml external: tr 仮定: コネクタの先 (相手側のドライバ不明)。JTAG ターゲット・UART 相手の典型的な 3.3 V CMOS (1〜5 ns の速い側寄り)'
+    certainty: 仮
+  /CLK27:
+    driver: X1.3 (OUT_3)
+    tr_ns: &id004
+      value: 20
+      basis: assumed
+      reason: 水晶発振 (12 MHz 前後) の波形は正弦波に近い
+      calc: tr ≈ 0.25 × 周期 = 0.25 × 83 ns ≈ 20 ns
+    tr_eff_ns: 20.013
+    f_max_mhz: &id005
+      value: 12
+      basis: assumed
+      reason: このリポジトリの基板の水晶は 12 MHz
+      calc: '-'
+    series_r:
+      ohm: 33.0
+      path: R20 33
+    source: 'families.yaml crystal: tr 仮定: 水晶発振 (12 MHz 前後) の波形は正弦波に近い (tr ≈ 0.25 × 周期 = 0.25 × 83 ns ≈ 20 ns) / f 仮定: このリポジトリの基板の水晶は 12 MHz (-)'
+    certainty: 仮
+  /CLK27_O:
+    driver: X1.3 (OUT_3)
+    tr_ns: *id004
+    tr_eff_ns: 20.0
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml crystal: tr 仮定: 水晶発振 (12 MHz 前後) の波形は正弦波に近い (tr ≈ 0.25 × 周期 = 0.25 × 83 ns ≈ 20 ns) / f 仮定: このリポジトリの基板の水晶は 12 MHz (-)'
+    certainty: 仮
+  /I2C_SCL:
+    driver: コネクタの先 (外部)
+    tr_ns: *id003
+    tr_eff_ns: 2.0
+    f_max_mhz: null
+    series_r: null
+    source: 'families.yaml external: tr 仮定: コネクタの先 (相手側のドライバ不明)。JTAG ターゲット・UART 相手の典型的な 3.3 V CMOS (1〜5 ns の速い側寄り)'
+    certainty: 仮
+  /I2C_SDA:
+    driver: コネクタの先 (外部)
+    tr_ns: *id003
+    tr_eff_ns: 2.0
+    f_max_mhz: null
+    series_r: null
+    source: 'families.yaml external: tr 仮定: コネクタの先 (相手側のドライバ不明)。JTAG ターゲット・UART 相手の典型的な 3.3 V CMOS (1〜5 ns の速い側寄り)'
+    certainty: 仮
+  /JTAG_TCK:
+    driver: コネクタの先 (外部)
+    tr_ns: *id003
+    tr_eff_ns: 2.0
+    f_max_mhz: null
+    series_r: null
+    source: 'families.yaml external: tr 仮定: コネクタの先 (相手側のドライバ不明)。JTAG ターゲット・UART 相手の典型的な 3.3 V CMOS (1〜5 ns の速い側寄り)'
+    certainty: 仮
+  /JTAG_TDI:
+    driver: コネクタの先 (外部)
+    tr_ns: *id003
+    tr_eff_ns: 2.0
+    f_max_mhz: null
+    series_r: null
+    source: 'families.yaml external: tr 仮定: コネクタの先 (相手側のドライバ不明)。JTAG ターゲット・UART 相手の典型的な 3.3 V CMOS (1〜5 ns の速い側寄り)'
+    certainty: 仮
+  /JTAG_TDO:
+    driver: コネクタの先 (外部)
+    tr_ns: *id003
+    tr_eff_ns: 2.0
+    f_max_mhz: null
+    series_r: null
+    source: 'families.yaml external: tr 仮定: コネクタの先 (相手側のドライバ不明)。JTAG ターゲット・UART 相手の典型的な 3.3 V CMOS (1〜5 ns の速い側寄り)'
+    certainty: 仮
+  /JTAG_TMS:
+    driver: コネクタの先 (外部)
+    tr_ns: *id003
+    tr_eff_ns: 2.0
+    f_max_mhz: null
+    series_r: null
+    source: 'families.yaml external: tr 仮定: コネクタの先 (相手側のドライバ不明)。JTAG ターゲット・UART 相手の典型的な 3.3 V CMOS (1〜5 ns の速い側寄り)'
+    certainty: 仮
+  /RECONFIG_N:
+    driver: スイッチ SW5
+    tr_ns: *id001
+    tr_eff_ns: 10.0
+    f_max_mhz: *id002
+    series_r: null
+    source: 'families.yaml switch_input: tr 仮定: スイッチ (SW*) がつながるネット。MCU 側は入力で、エッジは接点とプルアップ・ネットの容量で決まり、繰り返しもまれ (接点の閉じ始めは数 ns だがチャタリングの中の 1 回で、プルアップ 10 kΩ × 1 nF の RC を入れる設計が多い → 速い側を 10 ns と置く (要確認、overrides
+      で直す)) / f 仮定: 人の操作 (1 kHz 未満)'
+    certainty: 仮
+  /SPK_N:
+    driver: コネクタの先 (外部)
+    tr_ns: *id003
+    tr_eff_ns: 2.0
+    f_max_mhz: null
+    series_r: null
+    source: 'families.yaml external: tr 仮定: コネクタの先 (相手側のドライバ不明)。JTAG ターゲット・UART 相手の典型的な 3.3 V CMOS (1〜5 ns の速い側寄り)'
+    certainty: 仮
+  /SPK_P:
+    driver: コネクタの先 (外部)
+    tr_ns: *id003
+    tr_eff_ns: 2.0
+    f_max_mhz: null
+    series_r: null
+    source: 'families.yaml external: tr 仮定: コネクタの先 (相手側のドライバ不明)。JTAG ターゲット・UART 相手の典型的な 3.3 V CMOS (1〜5 ns の速い側寄り)'
+    certainty: 仮
+  /USB_DN_C:
+    driver: '-'
+    tr_ns: &id006
+      value: 4.0
+      basis: assumed
+      reason: USB 2.0 規格の Full-Speed の立ち上がり 4〜20 ns (7.1.1.1 節、ページ未確認)
+      calc: 範囲の速い側 4 ns
+    tr_eff_ns: 4.0
+    f_max_mhz: &id007
+      value: 6
+      basis: assumed
+      reason: 12 Mbps の基本波
+      calc: 12 / 2 = 6 MHz
+    series_r: null
+    source: 'families.yaml usb_fs: tr 仮定: USB 2.0 規格の Full-Speed の立ち上がり 4〜20 ns (7.1.1.1 節、ページ未確認) (範囲の速い側 4 ns) / f 仮定: 12 Mbps の基本波 (12 / 2 = 6 MHz)'
+    certainty: 仮
+  /USB_DP_C:
+    driver: '-'
+    tr_ns: *id006
+    tr_eff_ns: 4.0
+    f_max_mhz: *id007
+    series_r: null
+    source: 'families.yaml usb_fs: tr 仮定: USB 2.0 規格の Full-Speed の立ち上がり 4〜20 ns (7.1.1.1 節、ページ未確認) (範囲の速い側 4 ns) / f 仮定: 12 Mbps の基本波 (12 / 2 = 6 MHz)'
+    certainty: 仮

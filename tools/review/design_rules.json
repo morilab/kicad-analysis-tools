@@ -1,0 +1,21 @@
+{
+  "_doc": "kreview の設計段階の表。値の出典を source に書く。伝聞 (未検証) は status: hearsay。",
+  "crystals": [
+    {"match_mpn": "^X322512MSB4SI$", "cl_pf": 20, "source": "YXC X322512MSB4SI データシート (12MHz, CL 20pF)。blocks/interface-usb-jtag-ft2232h/notes.md と一致", "status": "datasheet"}
+  ],
+  "cstray_pf": 4.0,
+  "cstray_note": "2 層 / 4 層の短配線で 3〜5 pF の中央値。review.toml の [crystal] cstray_pf で上書き",
+  "hs_usb_parts": "FT2232H|FT232H|FT4232H|FT2232HL|USB3320|USB3300|CH347|CYUSB|USB2514|CY7C68013",
+  "hs_usb_note": "480 Mbps の部品。それ以外 (RP2040, ESP32-S3 の内蔵 USB, CH340 など) は Full-Speed 12 Mbps として impedance は参考扱い",
+  "internal_pullup": [
+    {"part": "RP2040", "pins": ["RUN"], "source": "RP2040 datasheet §2.15 RUN は内部 pull-up あり"},
+    {"part": "FT2232H", "pins": ["~{RESET}", "RESET#"], "source": "FT2232H datasheet: RESET# は未使用なら未接続可", "status": "hearsay"}
+  ],
+  "reset_pin_names": "^(~\\{?)?(N?RST|NRESET|RESET|RESET#|RUN|EN|CHIP_PU|XRES|MCLR|RECONFIG_N|PROGRAM_B)\\}?#?$",
+  "extended_fee_usd": 3.0,
+  "extended_fee_note": "JLCPCB Extended 部品は 1 品種ごとに部品ロード料 (2025 時点 $3、要確認)。Basic は無料",
+  "passive_prefix": "^(R|C|L|FB|D|LED)\\d",
+  "board_edge": {"copper_mm": 1.0, "part_mm": 3.0, "exempt_ref": "^(J|P)\\d", "exempt_fp": "(?i)conn|usb|rj45|hr911|card.?edge|edge.?conn|pcie|m\\.2|sd.?card|microsd|header|socket|terminal|sma|u\\.fl|mountinghole", "_doc": "2026-10-14 作者基板標準ルール (1): 基板外周 (Edge.Cuts の外周と切り欠き) から copper_mm 以内は銅箔 (トラック・ゾーン・via・パッド) 禁止、part_mm 以内は部品配置禁止 (courtyard、無ければパッド外形)。違反は fail。例外: 参照記号 exempt_ref・フットプリント名 exempt_fp に一致する部品 (コネクタ・カードエッジ・取付穴など) と、review.toml [config.board_edge] exempt = {\"SW1\" = \"理由 (日付・確認者)\"} で個別指定した部品。例外部品のパッドと、その courtyard 内の配線・via は銅箔の規則からも外す", "source": "作者 2026-10-14 指示 (基板標準)", "status": "rule"},
+  "silk_overlap": {"min_overlap_mm": 0.02, "_doc": "2026-10-14 作者基板標準ルール (2): シルク重なり検査を必須化。(a) 表示されているシルク文字どうし (リファレンス優先、同じ面) の外接矩形 (回転考慮、KiCad ストロークフォントの概算) の重なり、(b) シルク文字と部品 (他部品の Fab 外形、無ければパッド外形) の重なり、(c) シルク (文字・線) とパッドの重なり。いずれも fail。個別の除外は review.toml [config.silk] ignore = {\"H1\" = \"理由\"}。kicad-cli DRC の silk_overlap / silk_over_copper は参考として件数を併記", "source": "作者 2026-10-14 指示 (配置案で TP5 と U7 の文字が重なっていた件)", "status": "rule"},
+  "mounting_holes": {"min_count": 1, "fp_match": "(?i)mountinghole", "min_drill_mm": 2.0, "_doc": "2026-10-14 作者基板標準ルール (3): 取付穴の有無。取付穴 = フットプリント名が fp_match に一致する部品、または全パッドが NPTH で穴径 min_drill_mm 以上の部品。min_count 個未満なら warn (kreview P24)。ケースに入れない・別の固定方法で穴が要らない基板は review.toml [waive] P24_mounting_holes = \"理由 (日付・確認者)\" で明記する。詳細に穴の位置・穴径・メッキの有無・外形の角からの距離・穴のピッチを出す", "source": "作者 2026-10-14 指摘 (usb-jtag-ft2232h rev0.2 に取付穴が無かった件)", "status": "rule"}
+}

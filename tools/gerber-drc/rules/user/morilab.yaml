@@ -1,0 +1,26 @@
+# 作者独自ルール (2026-10-14 指示の例)。数値はすべて 作者指定、工場値ではない。
+file: {layer: user, name: morilab, extends: [factory/jlcpcb-standard], source: "2026-10-14 作者 指示"}
+rules:
+  - id: user.edge_keepout_copper
+    check: edge_clearance        # 外周 1mm 以内パターン禁止 = edge_clearance を 1.0 に
+    value: 1.0
+    severity: error
+    backend: both                # .kicad_dru (edge_clearance) と gerber-drc EDGE_CLEARANCE の両方
+    note: "2026-10-14 決定: 工場値 edge.copper_clearance (0.2) とは別ルールで両方出す"
+  - id: user.edge_keepout_parts
+    check: edge_keepout_courtyard  # 外周 3mm 以内部品禁止
+    value: 3.0
+    severity: error
+    except: {footprints: ["Connector*:*", "J*", "MountingHole:*", "TestPoint:*"]}  # 2026-10-14 決定 (案どおり)
+    backend: kicad_dru           # 2026-10-14 決定: KiCad DRC で見る。.kicad_dru では pad と外形の距離で近似 (courtyard は対象外)
+  - id: user.silk_silk_overlap
+    check: silk_overlap
+    scope: {layers: [F.Silkscreen, B.Silkscreen]}
+    value: 0.0                   # 重なり禁止 (間隔 0)
+    severity: warning
+    backend: kicad_dru           # KiCad の silk_overlap (シルク同士)
+  - id: user.silk_part_overlap
+    check: silk_clearance        # シルクと部品 (pad / courtyard) の重なり
+    value: 0.15
+    severity: warning
+    backend: both                # pad は KiCad silk_over_copper / gerber でも可。courtyard との重なりは kicad_pcb 側

@@ -1,0 +1,17 @@
+# GZ1608D601TF (Sunlord 0603 チップフェライトビーズ 600 Ω@100 MHz)。熱データなし (IR ドロップの直列抵抗)。2026-10-14 IR ドロップ担当
+lcsc: C1002
+mpn: GZ1608D601TF
+maker: Sunlord
+package: 0603 (1608)
+datasheet: {title: "Multilayer Chip Ferrite Bead – GZ Series", doc: "Sunlord GZ Series", rev: "版の記載を未確認 (octopart 配布 PDF)", url: "https://datasheet.octopart.com/GZ1608D601TF-Sunlord-datasheet-180745410.pdf"}
+dc_resistance:
+  typ: {value: 0.30, basis: assumed, reason: "データシートは DCR の最大値 0.45 Ω のみ (標準値なし)。積層フェライトビーズの実測 DCR は最大値の 60〜75% 程度が一般的", calc: "0.45 × 2/3 = 0.30 Ω"}
+  max: {value: 0.45, basis: datasheet, src: {page: 3, table: "SPECIFICATIONS GZ1608 TYPE", item: "GZ1608D601TF: Max. DC Resistance 0.45 Ω、Max. Rated Current 200 mA"}}
+  tc_per_c: {value: 0.0038, basis: assumed, reason: "温度係数の記載なし (p.1〜3)。内部電極は銀 (積層ビーズの一般構造) → 銀の抵抗温度係数 0.0038 /℃ を使う", calc: "α_Ag = 0.0038 /℃ (20 ℃ 基準)"}
+  t_ref_c: {value: 25, basis: assumed, reason: "DCR の測定温度の記載なし。常温測定とみなす", calc: "25 ℃"}
+bead_model:                       # PDN 用の周波数特性: DCR (dc_resistance) + (L ∥ Rp ∥ C)
+  # Sunlord カタログ 2022 p.17 "TYPICAL ELECTRICAL CHARACTERISTICS GZ1608 TYPE" の GZ1608D601TF の Z・R 曲線を画素から読み取って当てはめ (ds/gzimg/fit_gz.py)
+  # 読み取り: 10 MHz 53 Ω、30 MHz 188 Ω、100 MHz 580 Ω (表の 600 Ω±25% と一致)、ピーク 693 Ω @約 170 MHz、500 MHz 326 Ω。当てはめの相対 rms 6.9%
+  l: {value: 0.958e-6, basis: datasheet, src: {page: 17, table: "TYPICAL ELECTRICAL CHARACTERISTICS GZ1608 TYPE", item: "GZ1608D601TF の Z/R/X 曲線 (3〜1200 MHz) に L ∥ Rp ∥ C を最小二乗で当てはめた L"}}
+  r: {value: 730, basis: datasheet, src: {page: 17, table: "TYPICAL ELECTRICAL CHARACTERISTICS GZ1608 TYPE", item: "同 Rp (ピークの R ≈ 696 Ω に近い)"}}
+  c: {value: 0.977e-12, basis: datasheet, src: {page: 17, table: "TYPICAL ELECTRICAL CHARACTERISTICS GZ1608 TYPE", item: "同 C (自己共振 165 MHz)"}}

@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+# tests/regen_testdata_gerbers.sh の生成物 (控えの .kicad_pcb から出し直せる。.kicad_prl は kicad-cli が作る表示状態)
+tests/data/*/*/gerber/
+tests/data/*/*/.gerber.tmp.*
+tests/data/*/*/*.kicad_prl

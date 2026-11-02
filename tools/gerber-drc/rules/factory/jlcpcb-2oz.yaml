@@ -1,0 +1,8 @@
+# JLCPCB 2 層 2oz。jlcpcb-standard の差分だけ。公式: https://jlcpcb.com/capabilities/pcb-capabilities (2026-10-14 22:10 JST 確認)
+file: {layer: factory, name: jlcpcb-2oz, extends: [factory/jlcpcb-standard], source: "https://jlcpcb.com/capabilities/pcb-capabilities"}
+rules:
+  - {id: track.min_width,      value: 0.16, verified: true, ref: "Traces 2oz 2-layer 0.16/0.16 mm (多層 2oz は 0.15)"}
+  - {id: copper.min_clearance, value: 0.16, verified: true, ref: "同上"}
+  - {id: pth.min_annular,      value: 0.254, verified: true, ref: "PTH annular ring 2oz 0.254 mm 以上"}
+  - {id: pth.rec_annular,      value: 0.254, verified: true, ref: "同上"}
+  - {id: mask.min_bridge,      value: 0.20, verified: true, ref: "Soldermask bridge 2oz 0.20 mm"}

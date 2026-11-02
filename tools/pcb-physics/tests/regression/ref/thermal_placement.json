@@ -1,0 +1,329 @@
+{
+ "tool": "kicad-thermal",
+ "version": "0.1.0",
+ "date": "2026-10-14T08:08:23",
+ "project": "usb-jtag-ft2232h",
+ "rev": "0.2",
+ "mode": "placement",
+ "case": "worst (合否) + typ (参考)",
+ "pcb": "usb-jtag-ft2232h/usb-jtag-ft2232h.kicad_pcb",
+ "conditions": {
+  "ambient_c": 50,
+  "orientation": "horizontal_top_up",
+  "airflow": {
+   "velocity_m_s": 0.0,
+   "direction": "x"
+  },
+  "case": {
+   "enabled": false,
+   "internal_air_rise_c": 10,
+   "h_factor": 0.6,
+   "wall_rise_c": 10,
+   "wall_emissivity": 0.9
+  },
+  "emissivity": {
+   "top": 0.9,
+   "bottom": 0.9
+  },
+  "h": {
+   "top": {
+    "h_conv": 8.72,
+    "h_rad_mean": 7.55,
+    "t_mean": 68.59
+   },
+   "bottom": {
+    "h_conv": 4.29,
+    "h_rad_mean": 7.5,
+    "t_mean": 67.42
+   }
+  }
+ },
+ "stackup": {
+  "cu": [
+   0.035,
+   0.035
+  ],
+  "diel": [
+   1.51
+  ],
+  "src": "JLCPCB 標準 2 層: 外層 1 oz (35 µm)、コア = 板厚 - 銅 (stackup 未定のため)",
+  "assumed": true
+ },
+ "grid": {
+  "mm": 0.25,
+  "nx": 208,
+  "ny": 164,
+  "unknowns": 102326
+ },
+ "solver": {
+  "iterations": 10,
+  "P_total_w": 1.2901,
+  "P_out_w": 1.2901,
+  "balance_err": 4.5188591802917464e-07
+ },
+ "max_board_temp": {
+  "F": 189.0,
+  "B": 154.9
+ },
+ "copper_fraction": {
+  "F.Cu": 0.12758532204259687,
+  "B.Cu": 0.04670992338428828
+ },
+ "metrics": [
+  {
+   "stage": "thermal",
+   "id": "TP01",
+   "title": "U3 AP7361C-33E-13 Tj (placement, worst)",
+   "value": 195.2,
+   "grade": "fail",
+   "threshold": "上側 ≤ Tj上限-25 pass / ≤ Tj上限 warn (Tj上限 125 ℃: 案件条件: review.toml [config.power.\"+3V3\"] tj_max = 125 (設計上限。データシートの絶対最大は 150 ℃ = p.4))",
+   "detail": [
+    "P 0.535 W (P = (Vin - Vout) × ΣIout + Vin × Iq = (5.5 - 3.3) V × (220 + 2 + 1.5 + 6 + 0.5 + 3 + 10) mA + 5.5 V × 80 µA = 2.20 × 243 mA + 0.440 mW = 0.5350 W)、出典 部品表 parts_table.csv の電力の行",
+    "熱経路 θJC(底/タブ) = 15.0 ℃/W (仮定値: 根拠: データシートに θJC の記載なし (p.6 の熱抵抗は θJA のみ)。SOT-223 の LDO の θJC(タブ) は他社データシートで 10〜20 ℃/W の範囲なので中央を採用 / 計算: θJC(タブ) = (10 + 20) / 2 = 15 ℃/W (範囲の中央)。±5 ℃/W の差で Tj は ±5 × 0.535 W = ±2.7 ℃ 変わる)",
+    "パッケージ上面 189.0 ℃ (θJC(上) が無いので pad (タブ) の最高温度で代用 (上面はこれより数 ℃ 高い可能性))",
+    "上側 238.8 ℃ (推定 195.2 + 誤差 30% / 最小 5 ℃)、基準 ≤100 pass / ≤125 warn"
+   ],
+   "source": "C500795.yaml"
+  },
+  {
+   "stage": "thermal",
+   "id": "TP02",
+   "title": "U1 FT2232HL-REEL Tj (placement, worst)",
+   "value": 129.8,
+   "grade": "fail",
+   "threshold": "上側 ≤ Tj上限-25 pass / ≤ Tj上限 warn (Tj上限 125 ℃: 仮定値: 根拠: データシートに Tj 上限の記載なし (p.48 の表は周囲 -40〜85 ℃、絶対最大定格は保存 -65〜150 ℃)。一般的な CMOS IC の Tj 上限 125 ℃ を採用 / 計算: Tj上限 = 125 ℃ (値をそのまま置いた。周囲 85 ℃ 上限 + 自己発熱 約 40 K の余地と整合))",
+   "detail": [
+    "P 0.726 W (P = V × ΣI = 3.3 V × (150 + 60 + 10) mA = 3.3 × 220 mA = 0.7260 W)、出典 部品表 parts_table.csv の電力の行",
+    "熱経路 θJB = 30.0 ℃/W (仮定値: 根拠: データシートに熱抵抗の記載なし。LQFP-64 10x10 (露出パッドなし) の JEDEC 2s2p の θJB は他社データシートで 25〜35 ℃/W / 計算: θJB = (25 + 35) / 2 = 30 ℃/W。±5 ℃/W の差で Tj は ±5 × 0.726 W ≈ ±3.6 ℃ (上面経路があるので実際はやや小さい))",
+    "パッケージ上面 128.3 ℃ (T上 = Ta + G上(Tj-Ta)/(h A上) = 50 + 128.0 mW / (15.0 × 109.0 mm²))",
+    "上側 153.7 ℃ (推定 129.8 + 誤差 30% / 最小 5 ℃)、基準 ≤100 pass / ≤125 warn"
+   ],
+   "source": "C27882.yaml"
+  },
+  {
+   "stage": "thermal",
+   "id": "TP03",
+   "title": "U4 93LC56BT-I/OT pad 温度 (placement, worst)",
+   "value": 87.5,
+   "grade": "info",
+   "threshold": "",
+   "detail": [
+    "P 0.007 W (P = V × ΣI = 3.3 V × (2) mA = 3.3 × 2 mA = 0.0066 W)、出典 部品表 parts_table.csv の電力の行",
+    "熱データなし: pad 直下に発熱を置き、pad の最高温度を表示",
+    "パッケージ上面 87.5 ℃ (θJC(上) が無いので pad (タブ) の最高温度で代用 (上面はこれより数 ℃ 高い可能性))",
+    "上限温度なし (情報のみ)"
+   ],
+   "source": ""
+  },
+  {
+   "stage": "thermal",
+   "id": "TP04",
+   "title": "D1 KT-0603R pad 温度 (placement, worst)",
+   "value": 70.9,
+   "grade": "info",
+   "threshold": "",
+   "detail": [
+    "P 0.003 W (P = V × ΣI = 1.8 V × (1.5) mA = 1.8 × 1.5 mA = 0.0027 W)、出典 部品表 parts_table.csv の電力の行",
+    "熱データなし: pad 直下に発熱を置き、pad の最高温度を表示",
+    "パッケージ上面 70.9 ℃ (θJC(上) が無いので pad (タブ) の最高温度で代用 (上面はこれより数 ℃ 高い可能性))",
+    "上限温度なし (情報のみ)"
+   ],
+   "source": ""
+  },
+  {
+   "stage": "thermal",
+   "id": "TP05",
+   "title": "U5 SN74AVC4T774PWR pad 温度 (placement, worst)",
+   "value": 60.5,
+   "grade": "info",
+   "threshold": "",
+   "detail": [
+    "P 0.020 W (P = V × ΣI = 3.3 V × (6) mA = 3.3 × 6 mA = 0.0198 W)、出典 部品表 parts_table.csv の電力の行",
+    "熱データなし: pad 直下に発熱を置き、pad の最高温度を表示",
+    "パッケージ上面 60.5 ℃ (θJC(上) が無いので pad (タブ) の最高温度で代用 (上面はこれより数 ℃ 高い可能性))",
+    "上限温度なし (情報のみ)"
+   ],
+   "source": ""
+  },
+  {
+   "stage": "thermal",
+   "id": "TPT01",
+   "title": "U3 AP7361C-33E-13 Tj (placement, typ)",
+   "value": 86.8,
+   "grade": "info",
+   "threshold": "上側 ≤ Tj上限-25 pass / ≤ Tj上限 warn (Tj上限 125 ℃: 案件条件: review.toml [config.power.\"+3V3\"] tj_max = 125 (設計上限。データシートの絶対最大は 150 ℃ = p.4))",
+   "detail": [
+    "P 0.194 W (P = (Vin - Vout) × ΣIout + Vin × Iq = (5.0 - 3.3) V × (105 + 1 + 1.5 + 3 + 0.5 + 3 + 0) mA + 5.0 V × 60 µA = 1.70 × 114 mA + 0.300 mW = 0.1941 W)、出典 部品表 parts_table.csv の電力の行",
+    "熱経路 θJC(底/タブ) = 15.0 ℃/W (仮定値: 根拠: データシートに θJC の記載なし (p.6 の熱抵抗は θJA のみ)。SOT-223 の LDO の θJC(タブ) は他社データシートで 10〜20 ℃/W の範囲なので中央を採用 / 計算: θJC(タブ) = (10 + 20) / 2 = 15 ℃/W (範囲の中央)。±5 ℃/W の差で Tj は ±5 × 0.535 W = ±2.7 ℃ 変わる)",
+    "パッケージ上面 84.6 ℃ (θJC(上) が無いので pad (タブ) の最高温度で代用 (上面はこれより数 ℃ 高い可能性))",
+    "上側 105.4 ℃ (推定 86.8 + 誤差 30% / 最小 5 ℃)、基準 ≤100 pass / ≤125 warn"
+   ],
+   "source": "C500795.yaml"
+  },
+  {
+   "stage": "thermal",
+   "id": "TPT02",
+   "title": "U1 FT2232HL-REEL Tj (placement, typ)",
+   "value": 65.8,
+   "grade": "info",
+   "threshold": "上側 ≤ Tj上限-25 pass / ≤ Tj上限 warn (Tj上限 125 ℃: 仮定値: 根拠: データシートに Tj 上限の記載なし (p.48 の表は周囲 -40〜85 ℃、絶対最大定格は保存 -65〜150 ℃)。一般的な CMOS IC の Tj 上限 125 ℃ を採用 / 計算: Tj上限 = 125 ℃ (値をそのまま置いた。周囲 85 ℃ 上限 + 自己発熱 約 40 K の余地と整合))",
+   "detail": [
+    "P 0.347 W (P = V × ΣI = 3.3 V × (70 + 30 + 5) mA = 3.3 × 105 mA = 0.3465 W)、出典 部品表 parts_table.csv の電力の行",
+    "熱経路 θJB = 30.0 ℃/W (仮定値: 根拠: データシートに熱抵抗の記載なし。LQFP-64 10x10 (露出パッドなし) の JEDEC 2s2p の θJB は他社データシートで 25〜35 ℃/W / 計算: θJB = (25 + 35) / 2 = 30 ℃/W。±5 ℃/W の差で Tj は ±5 × 0.726 W ≈ ±3.6 ℃ (上面経路があるので実際はやや小さい))",
+    "パッケージ上面 65.0 ℃ (T上 = Ta + G上(Tj-Ta)/(h A上) = 25 + 65.5 mW / (15.0 × 109.0 mm²))",
+    "上側 78.1 ℃ (推定 65.8 + 誤差 30% / 最小 5 ℃)、基準 ≤100 pass / ≤125 warn。θ が逆算/仮定のため warn 止まり"
+   ],
+   "source": "C27882.yaml"
+  },
+  {
+   "stage": "thermal",
+   "id": "TPT03",
+   "title": "U4 93LC56BT-I/OT pad 温度 (placement, typ)",
+   "value": 45.9,
+   "grade": "info",
+   "threshold": "",
+   "detail": [
+    "P 0.003 W (P = V × ΣI = 3.3 V × (1) mA = 3.3 × 1 mA = 0.0033 W)、出典 部品表 parts_table.csv の電力の行",
+    "熱データなし: pad 直下に発熱を置き、pad の最高温度を表示",
+    "パッケージ上面 45.9 ℃ (θJC(上) が無いので pad (タブ) の最高温度で代用 (上面はこれより数 ℃ 高い可能性))",
+    "上限温度なし (情報のみ)"
+   ],
+   "source": ""
+  },
+  {
+   "stage": "thermal",
+   "id": "TPT04",
+   "title": "D1 KT-0603R pad 温度 (placement, typ)",
+   "value": 38.7,
+   "grade": "info",
+   "threshold": "",
+   "detail": [
+    "P 0.003 W (P = V × ΣI = 1.8 V × (1.5) mA = 1.8 × 1.5 mA = 0.0027 W)、出典 部品表 parts_table.csv の電力の行",
+    "熱データなし: pad 直下に発熱を置き、pad の最高温度を表示",
+    "パッケージ上面 38.7 ℃ (θJC(上) が無いので pad (タブ) の最高温度で代用 (上面はこれより数 ℃ 高い可能性))",
+    "上限温度なし (情報のみ)"
+   ],
+   "source": ""
+  },
+  {
+   "stage": "thermal",
+   "id": "TPT05",
+   "title": "U5 SN74AVC4T774PWR pad 温度 (placement, typ)",
+   "value": 31.3,
+   "grade": "info",
+   "threshold": "",
+   "detail": [
+    "P 0.010 W (P = V × ΣI = 3.3 V × (3) mA = 3.3 × 3 mA = 0.0099 W)、出典 部品表 parts_table.csv の電力の行",
+    "熱データなし: pad 直下に発熱を置き、pad の最高温度を表示",
+    "パッケージ上面 31.3 ℃ (θJC(上) が無いので pad (タブ) の最高温度で代用 (上面はこれより数 ℃ 高い可能性))",
+    "上限温度なし (情報のみ)"
+   ],
+   "source": ""
+  }
+ ],
+ "png": {
+  "F": "out/temp_worst_placement_F.png",
+  "B": "out/temp_worst_placement_B.png"
+ },
+ "overall": {
+  "fail": 2,
+  "warn": 0
+ },
+ "cases": {
+  "typ": {
+   "conditions": {
+    "ambient_c": 25,
+    "orientation": "horizontal_top_up",
+    "airflow": {
+     "velocity_m_s": 0.0,
+     "direction": "x"
+    },
+    "case": {
+     "enabled": false,
+     "internal_air_rise_c": 10,
+     "h_factor": 0.6,
+     "wall_rise_c": 10,
+     "wall_emissivity": 0.9
+    },
+    "emissivity": {
+     "top": 0.9,
+     "bottom": 0.9
+    },
+    "h": {
+     "top": {
+      "h_conv": 7.55,
+      "h_rad_mean": 5.7,
+      "t_mean": 35.08
+     },
+     "bottom": {
+      "h_conv": 3.73,
+      "h_rad_mean": 5.68,
+      "t_mean": 34.58
+     }
+    }
+   },
+   "max_board_temp": {
+    "F": 84.6,
+    "B": 72.5
+   },
+   "png": {
+    "F": "out/temp_typ_placement_F.png",
+    "B": "out/temp_typ_placement_B.png"
+   },
+   "solver": {
+    "iterations": 8,
+    "P_total_w": 0.5565,
+    "P_out_w": 0.5565,
+    "balance_err": 5.224693982833503e-07
+   }
+  },
+  "worst": {
+   "conditions": {
+    "ambient_c": 50,
+    "orientation": "horizontal_top_up",
+    "airflow": {
+     "velocity_m_s": 0.0,
+     "direction": "x"
+    },
+    "case": {
+     "enabled": false,
+     "internal_air_rise_c": 10,
+     "h_factor": 0.6,
+     "wall_rise_c": 10,
+     "wall_emissivity": 0.9
+    },
+    "emissivity": {
+     "top": 0.9,
+     "bottom": 0.9
+    },
+    "h": {
+     "top": {
+      "h_conv": 8.72,
+      "h_rad_mean": 7.55,
+      "t_mean": 68.59
+     },
+     "bottom": {
+      "h_conv": 4.29,
+      "h_rad_mean": 7.5,
+      "t_mean": 67.42
+     }
+    }
+   },
+   "max_board_temp": {
+    "F": 189.0,
+    "B": 154.9
+   },
+   "png": {
+    "F": "out/temp_worst_placement_F.png",
+    "B": "out/temp_worst_placement_B.png"
+   },
+   "solver": {
+    "iterations": 10,
+    "P_total_w": 1.2901,
+    "P_out_w": 1.2901,
+    "balance_err": 4.5188591802917464e-07
+   }
+  }
+ },
+ "parts_table": "parts_table.csv"
+}

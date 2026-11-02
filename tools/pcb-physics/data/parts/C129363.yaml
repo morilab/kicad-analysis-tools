@@ -1,0 +1,21 @@
+# SN74AVC4T774PWR (TSSOP-16、4 bit 双方向電圧変換)。熱データなし (IR ドロップ用)。2026-10-14 IR ドロップ担当
+# usb-jtag-ft2232h では +3V3 に 1/2/8/16 番がつながる。どれが VCCA/VCCB かは未照合 → 電流は 1 と 16 に等分 (2/8 は制御ピンと見て 0)
+lcsc: C129363
+mpn: SN74AVC4T774PWR
+maker: Texas Instruments
+package: TSSOP-16
+datasheet: {title: "SN74AVC4T774 4-Bit Dual-Supply Bus Transceiver", doc: "SCES620", rev: "未照合", url: "https://www.ti.com/lit/ds/symlink/sn74avc4t774.pdf (box から未取得)"}
+pins:
+  "1": &vcc
+    name: VCC (A/B 未照合)
+    net_role: power_in
+    current:
+      typ: {value: 0.0015, basis: assumed, reason: "usb-jtag-ft2232h review.toml loads U5 6 mA (30 MHz の充放電) の半分 (JTAG は間欠) を 2 ピンに等分", calc: "6 mA × 0.5 / 2 = 1.5 mA"}
+      max: {value: 0.003, basis: assumed, reason: "review.toml loads U5 6 mA を 2 ピン (1/16) に等分。充放電電流は負荷容量と周波数で決まる (案件依存)", calc: "6 mA / 2 = 3 mA"}
+    v_range:
+      kind: recommended
+      min: {value: 1.1, basis: assumed, reason: "AVC 系の VCC 下限 1.1 V (TI 一般値)。PDF 未照合", calc: "1.1 V"}
+      max: {value: 3.6, basis: assumed, reason: "同 上限 3.6 V", calc: "3.6 V"}
+  "16": *vcc
+  "7": {name: GND, net_role: ground}
+  "10": {name: GND, net_role: ground}

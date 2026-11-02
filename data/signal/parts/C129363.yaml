@@ -1,0 +1,17 @@
+# SN74AVC4T774PWR (TI) の出力特性
+lcsc: C129363
+mpn: SN74AVC4T774PWR
+maker: TI
+datasheet: {title: "SN74AVC4T774 4-Bit Dual-Supply Bus Transceiver", doc: "SCES693I", rev: "REVISED FEBRUARY 2025", url: "https://www.ti.com/lit/ds/symlink/sn74avc4t774.pdf"}
+signal:
+  default:
+    tr_ns:
+      value: 1.0
+      basis: assumed
+      reason: "データシートに出力の立ち上がり時間の規定なし (5.6〜5.10 Switching Characteristics は tpd のみ、p.9 の CpdA の条件 tr = tf = 1 ns は入力)。AVC ファミリの典型"
+      calc: "3.3 V 出力で 0.8〜1.5 ns の速い側を丸めて 1.0 ns"
+    f_max_mhz:
+      value: 190
+      basis: datasheet
+      src: {page: 1, table: "1 Features", item: "Typical data rates 380 Mbps (1.8 V to 3.3 V translation) → 基本波 190 MHz"}
+    r_out_ohm: {value: 25, basis: assumed, reason: "AVC の動的出力抵抗 (Dynamic Output Control) の典型", calc: "20〜30 Ω の中央"}

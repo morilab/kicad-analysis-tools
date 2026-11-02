@@ -1,0 +1,24 @@
+# AMS1117-3.3 (Advanced Monolithic Systems、SOT-223)。pitfall-4l 試験基板用 (2026-10-14)
+lcsc: C6186
+mpn: AMS1117-3.3
+maker: Advanced Monolithic Systems
+package: SOT-223 (タブ = pin 2 / 4)
+datasheet: {title: "AMS1117 1A Low Dropout Voltage Regulator", doc: "AMS1117", rev: "未確認", url: "未取得 (値は試験基板担当の expected.yaml の転記。PDF で未照合)"}
+tj_max:
+  value: 125
+  basis: assumed
+  reason: "PDF 未照合。AMS1117 の動作接合温度範囲 上限 125 ℃ として一般に記載される値"
+  calc: "Tj上限 = 125 ℃ (値をそのまま置いた)"
+theta:
+  jc_bottom:
+    value: 15
+    basis: assumed
+    reason: "expected.yaml (pitfall-4l) の転記『同データシート: junction to tab 15 ℃/W』。PDF 未照合のため assumed"
+    calc: "θJC(タブ) = 15 ℃/W をそのまま"
+  ja:
+    value: 90
+    basis: assumed
+    reason: "expected.yaml の転記『SOT-223 θJA = 90 ℃/W』。PDF 未照合。θJC(タブ) があるので計算には使わない (参考)"
+    calc: "θJA = 90 ℃/W をそのまま"
+  jb: {value: null, checked: "expected.yaml に記載なし"}
+heat_path: {pads: ["2"], why: "SOT-223 の熱はタブ (pin 2、+3V3 のベタ) へ流れる"}

@@ -1,0 +1,274 @@
+# pitfall-4l 回帰試験基板 — パターンごとの期待値と根拠 (正解表)
+# 座標は基板左上原点 (mm、y 下向き)。KiCad の絶対座標 = (x + 100, y + 100)。寸法は tools/build_pcb.py と対応 (変えたら両方直す)。
+# basis: hand_calc = 手計算 (式と代入値を calc に)、datasheet = 資料と項目、standard = IPC 式、tool_ref = kreview の式で手計算、assumed = 仮定 (reason 必須)。
+# tolerance: 解析ツールの結果をこの範囲で「合格」とみなす目安 (相対 or 絶対)。
+meta:
+  board: pitfall-4l
+  rev: "0.2"
+  changes_from_rev0_1: "熱の対を x=50 で鏡映・端から 15 mm 以上 (基板 100×80 → 100×129)、+5V_RELIEF に L3 ベタ、stackup を .kicad_pcb に記入、熱の期待値をパッド→L2 熱抵抗込みのモデルで再計算、ビア長を銅中心間に統一、連成の合否を収束・比・単調収束に。リターンパス・IR 区画 (y < 57) の座標は不変"
+  date: 2026-10-14
+  author: "AI 作成 (Grok Bot) / morilab 承認 (作成の指示)"
+  status: "机上値。実測なし (発注しない)"
+stackup:
+  basis: assumed
+  reason: "JLCPCB 標準 4 層 1.6 mm JLC04161H-7628 を仮定。rev0.2 から .kicad_pcb の (setup (stackup ...)) に同じ値を記入 (板厚 1.6062 mm、マスク各 10 µm 込み)"
+  via_length_definition: "ビア長は銅の中心間 (rev0.2 で統一、pcb-physics irdrop と同じ約束)。L1→L2 0.0175+0.2104+0.0076 = 0.2355、L1→L3 0.0175+0.2104+0.0152+1.065+0.0076 = 1.3157、L1→L4 1.5512 mm"
+  layers:
+    - {name: F.Cu,  role: "L1 信号",  cu_um: 35}
+    - {name: prepreg, h_mm: 0.2104, er: 4.4}
+    - {name: In1.Cu, role: "L2 GND ベタ", cu_um: 15.2}
+    - {name: core, h_mm: 1.065, er: 4.6}
+    - {name: In2.Cu, role: "L3 電源 (+5V_IR / +5V_LDO / +5V_RELIEF / +5V_DENSE / +5V_SPREAD に分割、RELIEF は rev0.2 追加)", cu_um: 15.2}
+    - {name: prepreg, h_mm: 0.2104, er: 4.4}
+    - {name: B.Cu,  role: "L4 信号", cu_um: 35}
+constants:
+  rho_cu_20c: {value: 1.72e-8, unit: "ohm m", basis: standard, src: "焼鈍銅 (pcb-physics irdrop.interface.rho_cu と同じ)"}
+  alpha_cu:   {value: 0.00393, unit: "1/K", basis: standard}
+  t_outer_m:  {value: 35.0e-6, basis: assumed, reason: "1 oz 外層 (めっき前の公称)"}
+  via_plating_m: {value: 20.0e-6, basis: assumed, reason: "JLC のビアめっき厚は 18〜25 µm 程度と言われる。中央寄りの 20 µm を置いた (要確認)"}
+  ambient_c:  {value: 25, basis: assumed, reason: "試験は室温・無風・基板水平"}
+
+# =====================================================================================================
+return_path:
+  common:
+    formula: "点数 = 1000 × D / (tr_eff × v)、P20: D = max(またぐ長さ, 迂回の長さ)、P21: D = 2 × 最寄り GND via 距離 (中心間)"
+    src: "tools/review/return_path.py、skills/design-review/SKILL.md §2.6 (commit bd287ae 点数制、53d87f8 しきい値 ≥100 fail / ≥30 warn)"
+    tr_eff_ns: {value: 2.0, basis: assumed, reason: "ドライバはコネクタの先 (families.yaml external、仮)。直列抵抗なし"}
+    v_mm_per_ns: 150
+    kreview_rev0_2: "rev0.2 (基板を下に延長、y < 57 は不変) で再照合: 7 件とも kreview_rev0_1 と同じ点数・距離 (19 / 25 / 35 / 7 / 17 / 37 / 34)"
+    Lr_mm: {value: 300, calc: "2.0 ns × 150 mm/ns"}
+    note: "L1 の参照層は L2 (GND)。L4 の参照層 L3 は電源なので kreview の P20 は L4 区間を見ない (仕様)。迂回は 0.25 mm 格子の 8 近傍最短路なので ±0.5 mm 程度ずれる"
+  patterns:
+    - id: RP-SLIT-W0P5
+      net: /RP_SLIT_W0P5
+      where: {layer: F.Cu, x: 25.0, y: 6.0, slit: "In1.Cu ルールエリア (ベタ禁止) 幅 0.5 × 長さ 5.5 mm、配線と直交"}
+      expected: {D_mm: 6.0, score: 20.0, grade: pass}
+      basis: tool_ref
+      calc: "迂回 ≈ スリット長 + 幅 = 5.5 + 0.5 = 6.0 mm (配線は中央を横切る: 片側 2.75 mm × 2 + 幅)。点数 = 1000 × 6.0 / 300 = 20.0"
+      tolerance: {score_abs: 3}
+      kreview_rev0_1: {score: 19, detour_mm: 5.79, cross_mm: 0.40}
+    - id: RP-SLIT-W2
+      net: /RP_SLIT_W2
+      where: {layer: F.Cu, x: 25.0, y: 15.0, slit: "幅 2 × 長さ 5.5 mm"}
+      expected: {D_mm: 7.5, score: 25.0, grade: pass}
+      basis: tool_ref
+      calc: "5.5 + 2 = 7.5 mm → 1000 × 7.5 / 300 = 25.0"
+      tolerance: {score_abs: 3}
+      kreview_rev0_1: {score: 25, detour_mm: 7.52, cross_mm: 1.81}
+    - id: RP-SLIT-W5
+      net: /RP_SLIT_W5
+      where: {layer: F.Cu, x: 25.0, y: 24.0, slit: "幅 5 × 長さ 5.5 mm"}
+      expected: {D_mm: 10.5, score: 35.0, grade: warn}
+      basis: tool_ref
+      calc: "5.5 + 5 = 10.5 mm → 35.0。幅を 10 倍にしても点数は 1.75 倍: 点数は迂回 (スリット長) が支配する"
+      tolerance: {score_abs: 3}
+      kreview_rev0_1: {score: 35, detour_mm: 10.53, cross_mm: 4.82}
+    - id: RP-VIA-G0P5
+      net: /RP_VIA_G0P5
+      where: {via: [76.0, 4.0], gnd_via: [76.0, 5.1], note: "via 径 0.6 / 穴 0.3。指定の 0.5 mm は縁どうしの隙間 (中心 0.5 mm は via が重なり作れない)"}
+      expected: {d_mm: 1.1, D_mm: 2.2, score: 7.3, grade: pass}
+      basis: tool_ref
+      calc: "中心間 = 0.6 + 0.5 = 1.1 mm、D = 2 × 1.1 = 2.2、1000 × 2.2 / 300 = 7.3"
+      tolerance: {score_abs: 1}
+      kreview_rev0_1: {score: 7, d_mm: 1.10}
+    - id: RP-VIA-G2
+      net: /RP_VIA_G2
+      where: {via: [76.0, 11.0], gnd_via: [76.0, 8.4], note: "隙間 2 mm (中心 2.6 mm)。G5 の via から遠ざけるため上側に置く"}
+      expected: {d_mm: 2.6, D_mm: 5.2, score: 17.3, grade: pass}
+      basis: tool_ref
+      calc: "D = 2 × 2.6 = 5.2 → 17.3"
+      tolerance: {score_abs: 1}
+      kreview_rev0_1: {score: 17, d_mm: 2.60}
+    - id: RP-VIA-G5
+      net: /RP_VIA_G5
+      where: {via: [76.0, 19.0], gnd_via: [76.0, 24.6], note: "隙間 5 mm (中心 5.6 mm)。他に 5.6 mm より近い GND via / GND スルーホールは無い"}
+      expected: {d_mm: 5.6, D_mm: 11.2, score: 37.3, grade: warn}
+      basis: tool_ref
+      calc: "D = 2 × 5.6 = 11.2 → 37.3"
+      tolerance: {score_abs: 1}
+      kreview_rev0_1: {score: 37, d_mm: 5.60}
+    - id: RP-COMB
+      net: /RP_COMB
+      where: {layer: F.Cu, x: 82.0, y: 27.0, vias: "+5V_IR via 9 本 x = 82、y = 21.6〜31.2 ピッチ 1.2、径 0.7 / 穴 0.3、内層 pad を残す (remove_unused_layers なし)"}
+      mechanism: "L2 の逃げ = 半径 0.35 + 0.25 (ベタの間隔) = 0.6 mm がピッチ 1.2 で接し、ベタ最小幅 0.2 mm 未満の銅が消えて縦 10.8 mm のスリットになる。配線は via 5 本目と 6 本目の間を通る"
+      expected: {cross_mm: 0.4, D_mm: 10.8, score: 36.0, grade: warn}
+      basis: tool_ref
+      calc: "櫛の下端 = 31.2 + 0.6 = 31.8、上端 = 21.6 − 0.6 = 21.0。配線 y = 27 から近い下端まで 4.8 mm → 迂回 ≈ 2 × 4.8 + 1.2 = 10.8 mm → 36.0"
+      tolerance: {score_abs: 3}
+      kreview_rev0_1: {score: 34, detour_mm: 10.31, cross_mm: 0.40}
+      finding: "via 径 0.6 (逃げ半径 0.55、接さない) だと銅の切れ目は配線の真下で幅 0.1〜0.2 mm しかなく、kreview は MIN_RUN 0.3 mm 未満として区間を作らない (= 櫛の迂回を見逃す)。実際の帰路は同じく迂回する。kreview 側の課題として報告"
+
+# =====================================================================================================
+ir_drop:
+  common:
+    supply: "J1 (+5V_IR / GND) に 5.00 V。R1〜R6 = 51 Ω (2512)"
+    current_each_a: {value: 0.0980, basis: hand_calc, calc: "5.00 / 51 = 98.0 mA (降下は 1% 未満なので無視)"}
+    formula: "R = ρ × L / (w × t)、ΔV = I × R (20 ℃。25 ℃ では ×1.0197)"
+    note: "下の値は『そのパターンの銅だけ』の降下。J1 から L3 ベタ (0.5 oz) を通る共通部分は別 (数 mΩ 以下、ツールの値を参考に追記する)"
+  patterns:
+    - id: IR1-THIN
+      net: /+5V_IR
+      where: {layer: F.Cu, from: [14.0, 34.0], to: [64.04, 34.0], width_mm: 0.2, length_mm: 50.04, load: R1}
+      expected: {R_mohm: 122.9, dV_mV: 12.04}
+      basis: hand_calc
+      calc: "1.72e-8 × 0.050 / (0.2e-3 × 35e-6) = 0.1229 Ω、× 0.0980 A = 12.04 mV (起点 via (14,34) の L3→L1 1.1 mΩ = 0.1 mV は含まない)"
+      tolerance: {rel: 0.05}
+    - id: IR2-NECK
+      net: /+5V_IR
+      where: {layer: F.Cu, zone: IR2_NECK, neck: "x 78〜83、y 35.25〜36.25 (幅 1.0 × 長さ 5.0)", feed: "L3 から via 4 本 (73.5/76 × 34.5/37)", load: R2}
+      expected: {R_neck_mohm: 2.457, dV_neck_uV: 241, dV_total_uV: {min: 280, max: 450}}
+      basis: hand_calc
+      calc: "ネック: 1.72e-8 × 5e-3 / (1e-3 × 35e-6) = 2.457 mΩ → 241 µV。全体 (via 4 本 0.28 mΩ + 両側ブロックの広がり抵抗 約 0.5〜1.5 mΩ) は範囲で示す"
+      tolerance: {rel_neck: 0.05}
+    - id: IR3-VIA1
+      net: /+5V_IR
+      where: {vias: 1, at: [77.5, 51.5], load: R3, note: "rev0.2 で R3〜R5 を 1.5 mm 左へ (外周 3 mm 以内の部品配置禁止)"}
+      expected: {R_via_mohm: 1.125, dV_via_uV: 110}
+      rev0_1: {R_via_mohm: 1.104, dV_via_uV: 108, note: "長さを誘電体 + L2 銅 = 1.29 mm で取っていた (外層・L3 の半厚なし)。irdrop 1.126 mΩ との差 2% はこれで全部説明できた"}
+      basis: hand_calc
+      calc: "めっき断面 A = π((0.15+0.02)² − 0.15²) = 0.02011 mm²、長さ L1→L3 (銅中心間) = 0.0175 + 0.2104 + 0.0152 + 1.065 + 0.0076 = 1.3157 mm、R = 1.72e-8 × 1.3157e-3 / 0.02011e-6 = 1.125 mΩ → × 98 mA = 110 µV"
+      tolerance: {rel: 0.3, why: "めっき厚の仮定 (18〜25 µm) と L3 側の広がり抵抗"}
+    - id: IR3-VIA4
+      where: {vias: 4, at: "(86 ± 0.6, 50.9 / 52.1)", load: R4}
+      expected: {R_via_mohm: 0.281, dV_via_uV: 27.6}
+      basis: hand_calc
+      calc: "1.125 / 4 (via 間 1.2 mm。平均の値。個々の via は L3 側の広がりで偏る: irdrop で 23〜32 µV)"
+      tolerance: {rel: 0.3}
+    - id: IR3-VIA9
+      where: {vias: 9, at: "(94.5 ± 1.2, 50.3 / 51.5 / 52.7)", load: R5}
+      expected: {R_via_mohm: 0.125, dV_via_uV: 12.3}
+      basis: hand_calc
+      calc: "1.125 / 9。比 1 : 4 : 9 本 → 降下 1 : 0.25 : 0.11 が確認点 (平均。個々の via は ±60% 偏る: irdrop で 7.5〜19.7 µV)"
+      tolerance: {rel: 0.3}
+    - id: IR4-REMOTE
+      net: /+5V_IR
+      where: {layer: B.Cu, path: "J1.1 (4.5,36) → (8,36) → (8,55) → (68,55) → via → R6.1", width_mm: 1.0, length_mm: 82.5, note: "L3 ベタに切り欠き (x 64〜72、y 52〜56.5) を入れ、via が L3 とつながらない = L4 の配線だけが経路"}
+      expected: {R_mohm: 40.5, dV_mV: 3.97, dV_total_mV: 4.17}
+      basis: hand_calc
+      calc: "1.72e-8 × 0.0825 / (1e-3 × 35e-6) = 40.5 mΩ → 3.97 mV。+ via L1→L4 (銅中心間 1.5512 mm) 1.327 mΩ → 0.130 mV + L1 1.5 mm 0.74 mΩ → 0.07 mV = 合計 4.17 mV (rev0.1 は via 1.6 mm 1.37 mΩ で 約 4.1)"
+      tolerance: {rel: 0.05}
+
+# =====================================================================================================
+thermal:
+  common:
+    ambient_c: 25
+    layout_rule: "rev0.2: 比べる対 (U1/U2、DENSE/SPREAD、R19/R20) は基板中心線 x = 50 で鏡映、発熱部品の pad は外形から 15 mm 以上 (最小 15.0 mm: R17/R18 の下端)。各区画に自前の L3 ベタ (LDO / RELIEF / DENSE / SPREAD、DENSE と SPREAD も x = 50 で鏡映)"
+    model:
+      basis: hand_calc
+      tool: "tools/thermal_model.py (本リポ、pcb-physics とは独立。入力は tools/dump_cu.py で .kicad_pcb から書き出した外層の銅・via・内層ベタ)"
+      what: >-
+        3 層の定常熱伝導 (格子 0.25 mm)。(a) 板 = L2 + L3 + FR-4 を束ねた 2D 板、面内 kt = 385 × 15.2 µm × (L2 有 + L3 有) + 0.8 × 1.57 mm
+        (L2+L3 で 0.0130 W/K)。(b) L1・L4 の銅 (ネットごとに横に導通、385 × 35 µm = 0.0135 W/K)。(c) 銅 ↔ 板はプリプレグ 0.2104 mm、
+        k = 0.3 W/mK (1426 W/m²K) = rev0.1 に無かった『パッド → L2』の熱抵抗。via / THT はめっき 20 µm の筒で、GND は L2、L3 ベタのある電源は L3 までの
+        銅中心間の長さで板とつなぐ (+3V3 のサーマルビアは L1 ↔ L4 だけ)。放熱は板全面: 自然対流 (水平板 上面 1.32 (ΔT/L)^0.25 + 下面 0.66 (ΔT/L)^0.25、
+        L = 面積/周長、ΔT = 板平均) + 放射 (両面 ε 0.9、セルごとの温度)、温度で 5 回更新。外形の端面は断熱。部品本体からの放熱は無視。
+        抵抗 = 1 点の発熱体を両 pad に 0.5 K/W ずつ、pad 温度 = pad の銅の最高。LDO = 接合 → タブ pad に θJC 15 K/W
+      pad_to_L2: "2512 の pad (1.2 × 3.4 mm) → L2: プリプレグだけなら 1 pad 約 113 K/W (縁の広がり 0.21 mm 込み)、配線 + via の並列路込みでモデルの実効値は 抵抗 1 個あたり 約 60 K/W (pad − 直下の板 = 29 K / 0.49 W)。pcb-physics rev0.1 は 55 K/W 相当 (80 − 53 K)"
+      wire_to_L2: "配線 → L2 の線コンダクタンス G' = k (w/h + 1.0) (平行平板 + 両縁の広がり、h = 0.2104 mm): 0.3 mm → 0.728、0.2 mm → 0.585 W/mK。配線温度 = 板温度 (線熱源を板に入れて解く) + q'/G'"
+      check_on_rev0_1:
+        note: "同じモデルを rev0.1 の基板に当てた値と pcb-physics 6e605fe (rev0.1) の比較。モデルは温度上昇を 12〜15% 高めに出す (対流・放射の h と部品上面の放熱の差と見る)。傾向 (dense/spread 比 < 1、U2 が端に近いことによる差) は一致"
+        U1_Tj_c: {model: 108.6, pcb_physics: 99.25}
+        U2_Tj_c: {model: 122.9, pcb_physics: 110.6}
+        U2_minus_U1_c: {model: 14.3, pcb_physics: 11.38, note: "rev0.1 では U2 が下端から 5.5 mm。差の大半は端の効果で、サーマルビアの効果ではなかった"}
+        dense_pad_rise_k: {model: 92.1, pcb_physics: 79.82}
+        spread_pad_rise_k: {model: 94.8, pcb_physics: 82.69}
+        ratio_dense_over_spread: {model: 0.97, pcb_physics: 0.965}
+        R19_minus_R20_c: {model: 3.6, pcb_physics: -2.42, note: "符号が逆。rev0.1 は R20 が下端から 5.8 mm で板が熱い。リリーフ (隙間 0.5、スポーク 0.3) の解像度の差もありうる → rev0.2 の鏡映で切り分ける"}
+        TH1A_wire_rise_k: {model: 4.1, pcb_physics: 2.99}
+        CP1A5_wire_max_c: {model: 42.7, pcb_physics: 36.16, irdrop_bot: 38.4}
+    tolerance_note: "熱の絶対値の範囲は温度上昇に対して −35% / +20% (pcb-physics 63d05dc は本モデルより 15〜25% 低く出る系統差があるため下側を広く取った)。合否の主は差・比 (対が鏡映なので配置の効果が消え、パターンの効果だけが残る)"
+    tool_results_rev0_2:
+      src: "pcb-physics main 63d05dc examples/pitfall-4l/results-rev0.2.json (typ、熱 0.25 mm・IR 0.1 mm)。基板は 80bb9f7 (R3〜R5 移動・内層ベタの外周 1 mm 化の前。熱の区画は同じ)"
+      U1_Tj_c: 76.3
+      U2_Tj_c: 78.9
+      U2_minus_U1_c: 2.58
+      dense_pad_rise_k: 72.9
+      spread_pad_rise_k: 54.0
+      ratio_dense_over_spread: 1.35
+      R19_minus_R20_gnd_pad_c: 5.5
+      plate_R19_minus_R20_c: 0.42
+      TH1A_wire_rise_k: 2.94
+      CP1A5: {V_mV: 194.3, R_mohm: 129.5, T_eff_c: 35.2, T_eff_calc: "20 + (129.51 / 122.22 − 1) / 0.00393", iterations: 4, monotonic: true}
+      verdict: "全項目が下の範囲に入る (範囲の改訂前も入っていたが U1/U2/密集/TH-1A/CP は下限まで 0.4〜3.3 K しかなかった)。系統差: 温度上昇でモデル比 −14〜−21%"
+  patterns:
+    - id: TH-LDO-VIA / TH-LDO-NOVIA
+      parts: {with_vias: U1, without_vias: U2}
+      condition: "J10 に 5.00 V、負荷 22 Ω × 2 並列 → 各 LDO 0.300 A。U1・U2 と R7〜R10 を同時に通電"
+      where: {U1: [24.0, 70.0], U2: [76.0, 70.0], U2_rot: 180, mirror_axis_x: 50, tab_cu: "L1 +3V3 ベタ 13.3 × 7 mm (93 mm²、両方同じ、鏡映)", U1_vias: "9 本 (x 29.1/30.3/31.5 × y 68.8/70/71.2) → L4 ベタ x 15〜41 × y 65〜75.5 (273 mm²)", loads: "R7/R8 (41.5, 68/72)、R9/R10 (58.5, 68/72)", edge_min_mm: 19.8}
+      Pd_w: {value: 0.535, basis: hand_calc, calc: "(5.0 − 3.3) × 0.30 + 5.0 × 0.005 (Iq 5 mA 仮定) = 0.535 W。負荷抵抗は 3.3²/22 = 0.495 W × 4"}
+      datasheet_check:
+        basis: datasheet
+        src: "Advanced Monolithic Systems AMS1117 データシート (LCSC C6186 の PDF、8 ページ、sha256 189a2651878a87d5…)"
+        theta_jc: {value: 15, text: "Thermal Resistance Junction-to-Case 15 °C/W、本文『junction to the tab 15°C/W』"}
+        theta_ja: {value: 90, text: "SOT-223 ϕJA = 90°C/W*、* 裏面の GND/電源プレーン上の銅に実装、46〜>90°C/W"}
+        table1: "1/16 inch FR-4、1 oz: 上面 2500/1000/225/100 mm² + 裏面 2500 mm² (板 2500 mm²) → 55/55/65/80 °C/W、上 1000 + 裏 0 → 65 °C/W"
+        result: "rev0.1 で使った値 (θJC 15、θJA 90、表 1) は PDF と一致。ただし θJA は単独の 2 層小基板の値で、この基板 (隣に 1 W の負荷抵抗 2 本) には使えない → rev0.2 の期待値は θJC 15 + 基板モデル"
+      expected:
+        U1_Tj_c: {value: 85, range: [64, 97], range_before: [73, 97], calc: "モデル: タブ pad 79.0 ℃ + 0.535 × 15 = 85.0 ℃ (直下の板 63.5 ℃)"}
+        U2_Tj_c: {value: 88, range: [66, 101], range_before: [76, 101], calc: "モデル: タブ pad 81.2 ℃ + 8.0 = 88.2 ℃ (直下の板 64.4 ℃)"}
+        U2_minus_U1_c: {value: 3.2, range: [1, 8], calc: "88.2 − 85.0。サーマルビア 9 本 → L4 ベタ の効果だけ (鏡映なので端・負荷の効果は消える)"}
+        R10_minus_R8_c: {value: 3.0, range: [0, 6], note: "参考: 負荷抵抗の pad 最高 92.8 / 89.8 ℃ (U2 側の +3V3 ベタに L4 の逃げが無い分)"}
+      rev0_1: {U2_Tj_c: 73, U1_Tj_c: 62, U2_minus_U1_c: 11, basis: "25 + 0.535 × θJA (90 / 70 仮定)。負荷抵抗の発熱と パッド→L2 を入れていなかった"}
+      why_small: "タブの熱は 93 mm² の L1 ベタ → プリプレグ (約 7.5 K/W) で L2 に抜けるのが主路で、via 9 本 + L4 ベタは並列の副路 (L4 も 0.21 mm 下の L3 にしか逃げない)。差を大きく見せたいなら U2 のタブ銅を小さくする (別パターン、今回はしない)"
+    - id: TH-DENSE / TH-SPREAD
+      parts: {dense: [R11, R12, R13, R14], spread: [R15, R16, R17, R18]}
+      condition: "J11 だけ、または J12 だけに 5.00 V (各 51 Ω = 0.490 W、群で 1.96 W)。同時に通電しない"
+      where: {dense: "中心 (33, 104)、抵抗 (28.5/37.5, 101/107) ピッチ 9 × 6 mm", spread: "中心 (67, 104)、抵抗 (53.5/80.5, 96.25/111.75) ピッチ 27 × 15.5 mm", mirror_axis_x: 50, edge_min_mm: {dense: 19.3, spread: 15.0}, L3: "DENSE x 0.5〜49.75、SPREAD x 50.25〜99.5 (y 91.75〜128.5)"}
+      expected:
+        dense_pad_rise_k: {value: 88.6, range: [58, 105], range_before: [70, 105], calc: "モデル: 4 個の pad 最高 113.5 ℃ − 25"}
+        spread_pad_rise_k: {value: 63.3, range: [41, 76], range_before: [50, 76], calc: "モデル: pad 最高 88.3 ℃ (R18) − 25。4 個の差 4.3 K (84.0〜88.3、端・コネクタの影響の残り)"}
+        ratio_dense_over_spread: {value: 1.40, range: [1.2, 1.6], calc: "88.6 / 63.3"}
+        plate_rise_k: {dense: 60.1, spread: 39.3, ratio: 1.53, note: "参考: pad 直下の板 (L2 相当) の最高 − 25。pad → L2 の約 29 K が両方に足されるので pad の比は板の比より 1 に近い"}
+      rev0_1: {dense_board_rise_k: 38, spread_board_rise_k: 23, ratio: 1.65, basis: "無限板のフィン近似 (K0)、pad → L2 なし、端の効果なし"}
+    - id: TH-RELIEF / TH-SOLID
+      parts: {relief: R19, solid: R20}
+      condition: "J13 に 5.00 V (各 0.490 W)"
+      where: {R19: [39.0, 85.0], R20: [61.0, 85.0], mirror_axis_x: 50, gnd_pour: "L1 GND ベタ 7.1 × 5.6 mm を外側に、GND via 3 本 (x 31.3 / 68.7)。R19 = サーマルリリーフ (隙間 0.5、スポーク 0.3 mm)、R20 = 直結", L3: "+5V_RELIEF x 0.5〜99.5 × y 78.75〜91.25 (rev0.2 追加)", edge_min_mm: 35.4}
+      expected:
+        R19_minus_R20_c: {value: 7.0, range: [3, 11], definition: "GND pad (pad 2) どうしの最高温度の差 = R19.2 の最高 − R20.2 の最高 (rev0.2 で定義を明確化)", calc: "モデル: R19.2 65.0 / R20.2 58.0 ℃ (抵抗の pad 最高どうしでも 6.98 K で同じ)"}
+        plate_R19_minus_R20_c: {value: 0.3, range: [-1.5, 1.5], note: "直下の板の差 (48.0 / 47.7 ℃)。鏡映なので ≈ 0 になるのが配置の確認点"}
+      rev0_1: {R19_minus_R20_c: 4, basis: "スポーク 4 本並列 31 K/W に GND pad の熱の半分を流した上限 7.6 K から 1〜8 K"}
+      hand_check: "スポーク 1 本 0.5e-3 / (385 × 0.3e-3 × 35e-6) = 124 K/W、4 本 31 K/W。GND pad の逃げ: リリーフ 31 + (ベタ → L2 約 6 K/W) ≈ 37 K/W、直結 ≈ 6 K/W、pad 直下のプリプレグ 113 K/W と +5V 側 約 90 K/W が並列 → 抵抗の熱抵抗 21.3 / 5.7 K/W、差 × 0.49 W = 7.6 K (モデル 6.9 K と合う)"
+    - id: TH-1A
+      net: /TH_1A
+      condition: "J4.1 → J5.1 に 1.00 A (外部定電流源)。電圧は J4.2–J5.2 (ケルビン)"
+      where: {layer: F.Cu, from: [17.5, 48.5], to: [47.5, 48.5], width_mm: 0.3, length_mm: 30, note: "座標は rev0.1 と同じ"}
+      expected:
+        dT_k: {value: 4.1, range: [2.5, 6.0], calc: "モデル: 配線の最高 29.1 ℃ (平均 29.0)。q' = 0.0509 / 0.030 = 1.70 W/m、q'/G' = 1.70 / 0.728 = 2.3 K + 板 1.6〜1.7 K"}
+        R20_mohm: 49.1
+        R_hot_mohm: {value: 50.9, calc: "49.1 × (1 + 0.00393 × (29.0 − 20))"}
+        V_mV: {value: 50.9, tolerance_rel: 0.02}
+      rev0_1: {dT_k: 10.0, R_hot_mohm: 52.0, V_mV: 52.0, basis: "IPC-2221 外層 (単層の銅の経験式、L2 への逃げなし) → 上限側"}
+      ipc_note: "IPC-2221 の 10 K は L2 GND の無い外層単独の上限として残す (ipc2221_upper_k: 10.0)"
+      ipc2221_upper_k: 10.0
+
+# =====================================================================================================
+coupled:
+  patterns:
+    - id: CP-1A5
+      net: /CP_1A5
+      condition: "J6.1 → J7.1 に 1.50 A。電圧は J6.2–J7.2"
+      where: {layer: F.Cu, from: [17.5, 41.0], to: [67.5, 41.0], width_mm: 0.2, length_mm: 50, note: "座標は rev0.1 と同じ"}
+      acceptance:
+        pass_criteria:
+          - "(1) 収束: 配線平均温度の変化が 0.1 ℃ 以内になるまで 6 回以内"
+          - "(2) 比: V_coupled / V_uncoupled(T0) = (1 + α (T_eff − 20)) / (1 + α (T0 − 20)) を 1% 以内で満たす。T0 = 非連成の計算の一様温度 (20 または 25 ℃)、α = 0.00393"
+          - "T_eff の定義 (rev0.2): 配線の抵抗で重み付けした平均温度 (実効温度) T_eff = Σ R_i T_i / Σ R_i (R_i = 各区間の抵抗)。R(T_eff) = R20 (1 + α (T_eff − 20)) が配線全体の抵抗に一致する温度。単純な面積平均や最高温度ではない"
+          - "(3) 単調収束: 反復ごとの T と V が単調に増え、増分が毎回小さくなる"
+        reference_only: "絶対値 (T、R、V、P、増加率) は参考。下の範囲から外れたら熱モデル側を確認するきっかけにする (不合格にはしない)"
+      basis: hand_calc
+      calc: "tools/thermal_model.py: 板に線熱源 q' = P / 50 mm を入れて板温度を解き、配線温度 = 板 + q'/G' (G' = 0.3 × (0.2/0.2104 + 1.0) = 0.585 W/mK)。実効温度 T_eff (抵抗重み付き平均) で R(T) = R20 (1 + α (T − 20)) → P = I² R を反復"
+      iteration:
+        - {k: 0, T_c: 25.0, R_mohm: 125.3, V_mV: 187.9, P_w: 0.282, note: "25 ℃ 一様 (R20 × (1 + 0.00393 × 5))"}
+        - {k: 1, T_c: 41.09, R_mohm: 133.04, V_mV: 199.56, P_w: 0.299}
+        - {k: 2, T_c: 42.07, R_mohm: 133.51, V_mV: 200.27, P_w: 0.300}
+        - {k: 3, T_c: 42.13, R_mohm: 133.54, V_mV: 200.31, P_w: 0.300}
+        - {k: 4, T_c: 42.14, R_mohm: 133.54, V_mV: 200.32, P_w: 0.300, note: "T_c は実効温度 T_eff。最高は 42.8 ℃"}
+      expected:
+        uncoupled: {R_mohm: 122.9, V_mV: 184.3, P_w: 0.276, note: "20 ℃ の抵抗のまま (温度を無視)。これは合否 (±2%)"}
+        coupled_reference: {T_eff_c: 42.1, T_max_c: 42.8, T_eff_range_c: [32, 50], R_mohm: 133.5, V_mV: 200.3, V_range_mV: [188, 208], P_w: 0.300, range_before: {T_avg_c: [34, 50], V_mV: [192, 208]}, note: "モデルの配線は断面一様なので T_eff ≈ 面積平均 (差 0.002 ℃)。下限 188 mV = 25 ℃ 一様で発熱なし"}
+        increase_reference: {V_rel_vs_20c: 0.087, V_rel_vs_25c: 0.066, check: "1.0661 = (1 + 0.00393 × 22.14) / (1 + 0.00393 × 5)"}
+        convergence: "モデルは 4 回で 0.1 ℃ 以内 (41.09 → 42.07 → 42.13 → 42.14 ℃)、単調"
+      rev0_1: {T_c: 74.1, R_mohm: 149.0, V_mV: 223.5, V_rel: 0.213, basis: "IPC-2221 ΔT 49.1 K を自己無撞着とみなした Rθ 146.5 K/W (L2 への逃げなし)"}
+      tool_results_rev0_1: {pcb_physics: {T_avg_c: 32.5, T_max_c: 36.16, V_mV: 194.3, iterations: 4}, irdrop_bot: {T_avg_c: 37.2, T_max_c: 38.4, V_mV: 195.3, ratio_check: "1.0472 vs ρ 比 1.0458"}, note: "どちらも新しい合否 (1)(2)(3) を満たし、参考範囲 V 192〜208 mV にも入る"}
+      tool_results_rev0_2: {irdrop_bot: {T_eff_c: 35.86, T_avg_c: 35.80, T_max_c: 36.79, V_kelvin_mV: 194.25, V_force_mV: 194.15, V_uncoupled_20c_mV: 182.87, V_uncoupled_25c_mV: 186.47, P_w: 0.292, iterations: 4, converged_at: 3, ratio_check: "194.25/182.87 = 1.0622 vs (1 + 0.00393 × 15.80) = 1.0621 (差 0.01%)、25 ℃ 基準 1.0418 vs 1.0416", date: "2026-10-18 01:29 JST (couple-rev02-iter4)", T_eff_note: "T_eff は R_coupled / R20 = 129.49 / 121.89 から逆算 (面積平均 35.80 ℃ との差 0.06 ℃)"}, verdict: "(1) 3 回目で温度変化の最大値 0.02 ℃ (0.1 ℃ 以内、6 回以内) (2) 比の誤差 0.01% (1% 以内) (3) 降下 186.91→194.39→194.69→194.70 mV、最高温度 36.30→36.77→36.79→36.79 ℃ で単調・増分減少 → 合格。非連成 20 ℃ 182.87 mV は期待 184.3 mV の −0.8% (±2% 内)。参考範囲 T_eff 32〜50 ℃・V 188〜208 mV に入る。手計算モデル (T_eff 42.1 ℃) より 6 ℃ 低いのは参考値の差で不合格にはしない"}

@@ -1,0 +1,80 @@
+# kreview の設定と例外 (tools/review/kreview.py)。人が読む文は日本語。
+# この基板は「失敗パターンを意図的に並べた」回帰試験基板。P20/P21 の warn は期待値どおり (expected.yaml)。
+
+[config]
+extended_pass = 5
+extended_warn = 10
+
+# ---- DR-01: 電源入力は JST XH (キー付き) で逆刺し・ずれ不可
+[config.connector.J1]
+keyed = "JST XH B2B-XH-A (キー付き、逆刺し不可)"
+[config.connector.J10]
+keyed = "JST XH B2B-XH-A (キー付き、逆刺し不可)"
+[config.connector.J11]
+keyed = "JST XH B2B-XH-A (キー付き、逆刺し不可)"
+[config.connector.J12]
+keyed = "JST XH B2B-XH-A (キー付き、逆刺し不可)"
+[config.connector.J13]
+keyed = "JST XH B2B-XH-A (キー付き、逆刺し不可)"
+
+
+# 試験信号・外部電流のコネクタも JST XH (キー付き) で逆刺し・ずれ不可
+[config.connector.J2]
+keyed = "JST XH (キー付き、逆刺し不可)"
+[config.connector.J3]
+keyed = "JST XH (キー付き、逆刺し不可)"
+[config.connector.J4]
+keyed = "JST XH (キー付き、逆刺し不可)"
+[config.connector.J5]
+keyed = "JST XH (キー付き、逆刺し不可)"
+[config.connector.J6]
+keyed = "JST XH (キー付き、逆刺し不可)"
+[config.connector.J7]
+keyed = "JST XH (キー付き、逆刺し不可)"
+[config.connector.J8]
+keyed = "JST XH (キー付き、逆刺し不可)"
+[config.connector.J9]
+keyed = "JST XH (キー付き、逆刺し不可)"
+
+# ---- DR-02: LDO (負荷は 22 Ω × 2 並列 = 300 mA の固定負荷)
+[config.power."+3V3_A"]
+regulator = "U1"
+mpn = "AMS1117-3.3"
+rating_ma = 1000
+vout = 3.3
+vin_min = 4.95          # 試験は実験室電源 5.00 V 設定 (±1%)、配線の降下は 0.05 V 未満
+vin_max = 5.05          # 実験室電源 5.00 V 設定 (+1%)
+dropout_mv = 1300
+dropout_at_ma = 800
+theta_ja = 90
+tj_max = 125
+ta_max = 50
+source = "Advanced Monolithic Systems AMS1117 datasheet (SOT-223 θJA 90 ℃/W、ドロップアウト 1.3 V max @ 800 mA)"
+loads = [ { ref = "R7", ma = 150, note = "3.3 V / 22 Ω" }, { ref = "R8", ma = 150, note = "3.3 V / 22 Ω" } ]
+
+[config.power."+3V3_B"]
+regulator = "U2"
+mpn = "AMS1117-3.3"
+rating_ma = 1000
+vout = 3.3
+vin_min = 4.95          # 試験は実験室電源 5.00 V 設定 (±1%)、配線の降下は 0.05 V 未満
+vin_max = 5.05          # 実験室電源 5.00 V 設定 (+1%)
+dropout_mv = 1300
+dropout_at_ma = 800
+theta_ja = 90
+tj_max = 125
+ta_max = 50
+source = "Advanced Monolithic Systems AMS1117 datasheet (SOT-223 θJA 90 ℃/W、ドロップアウト 1.3 V max @ 800 mA)"
+loads = [ { ref = "R9", ma = 150, note = "3.3 V / 22 Ω" }, { ref = "R10", ma = 150, note = "3.3 V / 22 Ω" } ]
+
+# D14 (warn のまま): C3/C4 22 µF 6.3 V に 3.3 V (52%)。発注前に 10 V 品へ替える候補 (未選定)。試験の目的 (LDO の発熱) には影響しない。
+
+[waive]
+P01_layout_score = "回帰試験基板: パターン同士の熱・電気的な干渉を避けるため意図的に間隔を空けている (2026-10-14 AI 提案、作者 確認待ち)"
+P02_density = "同上: 区画ごとに独立させるため低密度 (2026-10-14 AI 提案、作者 確認待ち)"
+P02_far_empty_ratio = "同上 (2026-10-14 AI 提案、作者 確認待ち)"
+D01_lcsc_coverage = "発注しない試験基板 (rev0.1)。ヘッダ・JST XH・2512 抵抗の LCSC 番号は発注前に選定 (2026-10-14 AI 提案、作者 確認待ち)"
+D04_jlc_class_field = "同上: LCSC 未選定のため Basic/Extended も未記入 (2026-10-14 AI 提案、作者 確認待ち)"
+S15_field_completeness = "同上: LCSC/MPN 未選定 (2026-10-14 AI 提案、作者 確認待ち)"
+P20_return_path_gap = "意図的な失敗パターン (スリット w5 = 35 点 warn が期待値、expected.yaml RP-SLIT-W5 / RP-COMB) (2026-10-14 AI 提案、作者 確認待ち)"
+P21_return_via = "意図的な失敗パターン (GND via gap 5 mm = 37 点 warn が期待値、expected.yaml RP-VIA-G5) (2026-10-14 AI 提案、作者 確認待ち)"

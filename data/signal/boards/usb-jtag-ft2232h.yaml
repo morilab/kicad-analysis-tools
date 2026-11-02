@@ -1,0 +1,699 @@
+# ネットごとの信号特性 (リターンパス P20/P21 の点数に使う)。形式は data/signal/README.md
+board: usb-jtag-ft2232h
+generated_by: 'tools/review/signal_table.py (手で直す値は overrides: に書く。nets: は再生成で上書き)'
+defaults:
+  c_load_pf:
+    value: 10
+    basis: assumed
+    reason: 直列抵抗の後ろの負荷 (受け側の入力容量 3〜5 pF + 配線 20〜50 mm × 0.1 pF/mm)
+    calc: 5 + 5 = 10 pF
+  v_mm_per_ns:
+    value: 150
+    basis: assumed
+    reason: FR-4 マイクロストリップの伝搬速度 (実効比誘電率 3〜4)
+    calc: c / √4 = 300 / 2 = 150 mm/ns
+  hs_usb: true
+overrides: {}
+nets:
+  /ACBUS0:
+    driver: U1.26 (ACBUS0_26)
+    tr_ns: &id001
+      value: 1.5
+      basis: assumed
+      reason: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常
+      calc: tr ≈ 2.2 × R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)
+    tr_eff_ns: 1.5
+    f_max_mhz: &id002
+      value: 30
+      basis: datasheet
+      src:
+        page: 34
+        table: Table 4.3 MPSSE Signal Timings (Figure 4.7)
+        item: These show timings for TCK=30MHz。MPSSE 最大 30 Mbit/s
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /ACBUS1:
+    driver: U1.27 (ACBUS1_27)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /ACBUS2:
+    driver: U1.28 (ACBUS2_28)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /ACBUS3:
+    driver: U1.29 (ACBUS3_29)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /ACBUS4:
+    driver: U1.30 (ACBUS4_30)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /ACBUS5:
+    driver: U1.32 (ACBUS5_32)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /ACBUS6:
+    driver: U1.33 (ACBUS6_33)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /ACBUS7:
+    driver: U1.34 (ACBUS7_34)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /ADBUS0:
+    driver: U1.16 (ADBUS0_16)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /ADBUS1:
+    driver: U1.17 (ADBUS1_17)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /ADBUS2:
+    driver: U1.18 (ADBUS2_18)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /ADBUS3:
+    driver: U1.19 (ADBUS3_19)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /ADBUS4:
+    driver: U1.21 (ADBUS4_21)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /ADBUS5:
+    driver: U1.22 (ADBUS5_22)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /ADBUS6:
+    driver: U1.23 (ADBUS6_23)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /ADBUS7:
+    driver: U1.24 (ADBUS7_24)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /BCBUS0:
+    driver: U1.48 (BCBUS0_48)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /BCBUS1:
+    driver: U1.52 (BCBUS1_52)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /BCBUS2:
+    driver: U1.53 (BCBUS2_53)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /BCBUS3:
+    driver: U1.54 (BCBUS3_54)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /BCBUS4:
+    driver: U1.55 (BCBUS4_55)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /BCBUS5:
+    driver: U1.57 (BCBUS5_57)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /BCBUS6:
+    driver: U1.58 (BCBUS6_58)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /BCBUS7:
+    driver: U1.59 (BCBUS7_59)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /BDBUS0:
+    driver: U1.38 (BDBUS0_38)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /BDBUS1:
+    driver: U1.39 (BDBUS1_39)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /BDBUS2:
+    driver: U1.40 (BDBUS2_40)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /BDBUS3:
+    driver: U1.41 (BDBUS3_41)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /BDBUS4:
+    driver: U1.43 (BDBUS4_43)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /BDBUS5:
+    driver: U1.44 (BDBUS5_44)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /BDBUS6:
+    driver: U1.45 (BDBUS6_45)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /BDBUS7:
+    driver: U1.46 (BDBUS7_46)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /EECS:
+    driver: U1.63 (EECS_63)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /JTAG_OE#:
+    driver: U1.21 (ADBUS4_21)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  /JTAG_TCK:
+    driver: U5.14 (B1_14)
+    tr_ns: &id003
+      value: 1.0
+      basis: assumed
+      reason: データシートに出力の立ち上がり時間の規定なし (5.6〜5.10 Switching Characteristics は tpd のみ、p.9 の CpdA の条件 tr = tf = 1 ns は入力)。AVC ファミリの典型
+      calc: 3.3 V 出力で 0.8〜1.5 ns の速い側を丸めて 1.0 ns
+    tr_eff_ns: 3.448
+    f_max_mhz: &id004
+      value: 190
+      basis: datasheet
+      src:
+        page: 1
+        table: 1 Features
+        item: Typical data rates 380 Mbps (1.8 V to 3.3 V translation) → 基本波 190 MHz
+    series_r:
+      ohm: 150.0
+      path: R9 150
+    source: 'data/signal/parts/C129363.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (5.6〜5.10 Switching Characteristics は tpd のみ、p.9 の CpdA の条件 tr = tf = 1 ns は入力)。AVC ファミリの典型 (3.3 V 出力で 0.8〜1.5 ns の速い側を丸めて 1.0
+      ns) / f SN74AVC4T774 4-Bit Dual-Supply Bus Transceiver SCES693I REVISED FEBRUARY 2025 p.1 1 Features'
+    certainty: 仮
+  /JTAG_TDI:
+    driver: U5.13 (B2_13)
+    tr_ns: *id003
+    tr_eff_ns: 3.448
+    f_max_mhz: *id004
+    series_r:
+      ohm: 150.0
+      path: R10 150
+    source: 'data/signal/parts/C129363.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (5.6〜5.10 Switching Characteristics は tpd のみ、p.9 の CpdA の条件 tr = tf = 1 ns は入力)。AVC ファミリの典型 (3.3 V 出力で 0.8〜1.5 ns の速い側を丸めて 1.0
+      ns) / f SN74AVC4T774 4-Bit Dual-Supply Bus Transceiver SCES693I REVISED FEBRUARY 2025 p.1 1 Features'
+    certainty: 仮
+  /JTAG_TDO:
+    driver: U5.12 (B3_12)
+    tr_ns: *id003
+    tr_eff_ns: 3.448
+    f_max_mhz: *id004
+    series_r:
+      ohm: 150.0
+      path: R11 150
+    source: 'data/signal/parts/C129363.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (5.6〜5.10 Switching Characteristics は tpd のみ、p.9 の CpdA の条件 tr = tf = 1 ns は入力)。AVC ファミリの典型 (3.3 V 出力で 0.8〜1.5 ns の速い側を丸めて 1.0
+      ns) / f SN74AVC4T774 4-Bit Dual-Supply Bus Transceiver SCES693I REVISED FEBRUARY 2025 p.1 1 Features'
+    certainty: 仮
+  /JTAG_TMS:
+    driver: U5.11 (B4_11)
+    tr_ns: *id003
+    tr_eff_ns: 3.448
+    f_max_mhz: *id004
+    series_r:
+      ohm: 150.0
+      path: R12 150
+    source: 'data/signal/parts/C129363.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (5.6〜5.10 Switching Characteristics は tpd のみ、p.9 の CpdA の条件 tr = tf = 1 ns は入力)。AVC ファミリの典型 (3.3 V 出力で 0.8〜1.5 ns の速い側を丸めて 1.0
+      ns) / f SN74AVC4T774 4-Bit Dual-Supply Bus Transceiver SCES693I REVISED FEBRUARY 2025 p.1 1 Features'
+    certainty: 仮
+  /JTAG_nSRST:
+    driver: コネクタの先 (外部)
+    tr_ns: &id009
+      value: 2.0
+      basis: assumed
+      reason: コネクタの先 (相手側のドライバ不明)。JTAG ターゲット・UART 相手の典型的な 3.3 V CMOS
+      calc: 1〜5 ns の速い側寄り
+    tr_eff_ns: 2.0
+    f_max_mhz: null
+    series_r: null
+    source: 'families.yaml external: tr 仮定: コネクタの先 (相手側のドライバ不明)。JTAG ターゲット・UART 相手の典型的な 3.3 V CMOS (1〜5 ns の速い側寄り)'
+    certainty: 仮
+  /TCK_A:
+    driver: U5.3 (A1_3)
+    tr_ns: *id003
+    tr_eff_ns: 1.0
+    f_max_mhz: *id004
+    series_r: null
+    source: 'data/signal/parts/C129363.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (5.6〜5.10 Switching Characteristics は tpd のみ、p.9 の CpdA の条件 tr = tf = 1 ns は入力)。AVC ファミリの典型 (3.3 V 出力で 0.8〜1.5 ns の速い側を丸めて 1.0
+      ns) / f SN74AVC4T774 4-Bit Dual-Supply Bus Transceiver SCES693I REVISED FEBRUARY 2025 p.1 1 Features'
+    certainty: 仮
+  /TDI_A:
+    driver: U5.4 (A2_4)
+    tr_ns: *id003
+    tr_eff_ns: 1.0
+    f_max_mhz: *id004
+    series_r: null
+    source: 'data/signal/parts/C129363.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (5.6〜5.10 Switching Characteristics は tpd のみ、p.9 の CpdA の条件 tr = tf = 1 ns は入力)。AVC ファミリの典型 (3.3 V 出力で 0.8〜1.5 ns の速い側を丸めて 1.0
+      ns) / f SN74AVC4T774 4-Bit Dual-Supply Bus Transceiver SCES693I REVISED FEBRUARY 2025 p.1 1 Features'
+    certainty: 仮
+  /TMS_A:
+    driver: U5.6 (A4_6)
+    tr_ns: *id003
+    tr_eff_ns: 1.0
+    f_max_mhz: *id004
+    series_r: null
+    source: 'data/signal/parts/C129363.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (5.6〜5.10 Switching Characteristics は tpd のみ、p.9 の CpdA の条件 tr = tf = 1 ns は入力)。AVC ファミリの典型 (3.3 V 出力で 0.8〜1.5 ns の速い側を丸めて 1.0
+      ns) / f SN74AVC4T774 4-Bit Dual-Supply Bus Transceiver SCES693I REVISED FEBRUARY 2025 p.1 1 Features'
+    certainty: 仮
+  /TXD_A:
+    driver: U6.8 (A1_8)
+    tr_ns: &id005
+      value: 1.0
+      basis: assumed
+      reason: データシートに出力の立ち上がり時間の規定なし (p.9 の CpdA の条件 tr = tf = 1 ns は入力)。AVC ファミリの典型
+      calc: 3.3 V 出力で 0.8〜1.5 ns の速い側を丸めて 1.0 ns
+    tr_eff_ns: 1.0
+    f_max_mhz: &id006
+      value: 250
+      basis: datasheet
+      src:
+        page: 1
+        table: 1 Features
+        item: Typical Data Rates 500 Mbps (1.8 V to 3.3 V Level-Shifting) → 基本波 250 MHz
+    series_r: null
+    source: 'data/signal/parts/C128418.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.9 の CpdA の条件 tr = tf = 1 ns は入力)。AVC ファミリの典型 (3.3 V 出力で 0.8〜1.5 ns の速い側を丸めて 1.0 ns) / f SN74AVC2T245 Dual-Bit Dual-Supply Bus
+      Transceiver SCES692E REVISED SEPTEMBER 2024 p.1 1 Features'
+    certainty: 仮
+  /UART_RXD:
+    driver: U6.4 (B2_4)
+    tr_ns: *id005
+    tr_eff_ns: 22.023
+    f_max_mhz: *id006
+    series_r:
+      ohm: 1000.0
+      path: R18 1k
+    source: 'data/signal/parts/C128418.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.9 の CpdA の条件 tr = tf = 1 ns は入力)。AVC ファミリの典型 (3.3 V 出力で 0.8〜1.5 ns の速い側を丸めて 1.0 ns) / f SN74AVC2T245 Dual-Bit Dual-Supply Bus
+      Transceiver SCES692E REVISED SEPTEMBER 2024 p.1 1 Features'
+    certainty: 仮
+  /UART_TXD:
+    driver: U6.5 (B1_5)
+    tr_ns: *id005
+    tr_eff_ns: 22.023
+    f_max_mhz: *id006
+    series_r:
+      ohm: 1000.0
+      path: R17 1k
+    source: 'data/signal/parts/C128418.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.9 の CpdA の条件 tr = tf = 1 ns は入力)。AVC ファミリの典型 (3.3 V 出力で 0.8〜1.5 ns の速い側を丸めて 1.0 ns) / f SN74AVC2T245 Dual-Bit Dual-Supply Bus
+      Transceiver SCES692E REVISED SEPTEMBER 2024 p.1 1 Features'
+    certainty: 仮
+  /USB_DN:
+    driver: U1.7 (DM_7)
+    tr_ns: &id007
+      value: 0.5
+      basis: assumed
+      reason: USB 2.0 規格の High-Speed ドライバの立ち上がり下限 500 ps (7.1.2.2 節、ページ・表番号は box で未確認)
+      calc: tr = 0.5 ns (規格の下限 = 最も速い場合)
+    tr_eff_ns: 0.5
+    f_max_mhz: &id008
+      value: 240
+      basis: assumed
+      reason: 480 Mbps の基本波
+      calc: 480 / 2 = 240 MHz
+    series_r: null
+    source: 'families.yaml usb_hs: tr 仮定: USB 2.0 規格の High-Speed ドライバの立ち上がり下限 500 ps (7.1.2.2 節、ページ・表番号は box で未確認) (tr = 0.5 ns (規格の下限 = 最も速い場合)) / f 仮定: 480 Mbps の基本波 (480 / 2 = 240 MHz)'
+    certainty: 仮
+  /USB_DN_C:
+    driver: '-'
+    tr_ns: *id007
+    tr_eff_ns: 0.5
+    f_max_mhz: *id008
+    series_r: null
+    source: 'families.yaml usb_hs: tr 仮定: USB 2.0 規格の High-Speed ドライバの立ち上がり下限 500 ps (7.1.2.2 節、ページ・表番号は box で未確認) (tr = 0.5 ns (規格の下限 = 最も速い場合)) / f 仮定: 480 Mbps の基本波 (480 / 2 = 240 MHz)'
+    certainty: 仮
+  /USB_DP:
+    driver: U1.8 (DP_8)
+    tr_ns: *id007
+    tr_eff_ns: 0.5
+    f_max_mhz: *id008
+    series_r: null
+    source: 'families.yaml usb_hs: tr 仮定: USB 2.0 規格の High-Speed ドライバの立ち上がり下限 500 ps (7.1.2.2 節、ページ・表番号は box で未確認) (tr = 0.5 ns (規格の下限 = 最も速い場合)) / f 仮定: 480 Mbps の基本波 (480 / 2 = 240 MHz)'
+    certainty: 仮
+  /USB_DP_C:
+    driver: '-'
+    tr_ns: *id007
+    tr_eff_ns: 0.5
+    f_max_mhz: *id008
+    series_r: null
+    source: 'families.yaml usb_hs: tr 仮定: USB 2.0 規格の High-Speed ドライバの立ち上がり下限 500 ps (7.1.2.2 節、ページ・表番号は box で未確認) (tr = 0.5 ns (規格の下限 = 最も速い場合)) / f 仮定: 480 Mbps の基本波 (480 / 2 = 240 MHz)'
+    certainty: 仮
+  /nSRST_DRV:
+    driver: U1.22 (ADBUS5_22)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  Net-(J1-CC1):
+    driver: コネクタの先 (外部)
+    tr_ns: *id009
+    tr_eff_ns: 2.0
+    f_max_mhz: null
+    series_r: null
+    source: 'families.yaml external: tr 仮定: コネクタの先 (相手側のドライバ不明)。JTAG ターゲット・UART 相手の典型的な 3.3 V CMOS (1〜5 ns の速い側寄り)'
+    certainty: 仮
+  Net-(J1-CC2):
+    driver: コネクタの先 (外部)
+    tr_ns: *id009
+    tr_eff_ns: 2.0
+    f_max_mhz: null
+    series_r: null
+    source: 'families.yaml external: tr 仮定: コネクタの先 (相手側のドライバ不明)。JTAG ターゲット・UART 相手の典型的な 3.3 V CMOS (1〜5 ns の速い側寄り)'
+    certainty: 仮
+  Net-(U1-EECLK):
+    driver: U1.62 (EECLK_62)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  Net-(U1-EEDATA):
+    driver: U1.61 (EEDATA_61)
+    tr_ns: *id001
+    tr_eff_ns: 1.5
+    f_max_mhz: *id002
+    series_r: null
+    source: 'data/signal/parts/C27882.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常 (tr ≈ 2.2 ×
+      R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)) / f FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet FT_000061 Version 2.10 p.34 Table 4.3 MPSSE
+      Signal Timings (Figure 4.7)'
+    certainty: 仮
+  Net-(U1-OSCI):
+    driver: Y1.1 (1_1)
+    tr_ns: &id010
+      value: 20
+      basis: assumed
+      reason: 水晶発振 (12 MHz 前後) の波形は正弦波に近い
+      calc: tr ≈ 0.25 × 周期 = 0.25 × 83 ns ≈ 20 ns
+    tr_eff_ns: 20.0
+    f_max_mhz: &id011
+      value: 12
+      basis: assumed
+      reason: このリポジトリの基板の水晶は 12 MHz
+      calc: '-'
+    series_r: null
+    source: 'families.yaml crystal: tr 仮定: 水晶発振 (12 MHz 前後) の波形は正弦波に近い (tr ≈ 0.25 × 周期 = 0.25 × 83 ns ≈ 20 ns) / f 仮定: このリポジトリの基板の水晶は 12 MHz (-)'
+    certainty: 仮
+  Net-(U1-OSCO):
+    driver: U1.3 (OSCO_3)
+    tr_ns: *id010
+    tr_eff_ns: 20.0
+    f_max_mhz: *id011
+    series_r: null
+    source: 'families.yaml crystal: tr 仮定: 水晶発振 (12 MHz 前後) の波形は正弦波に近い (tr ≈ 0.25 × 周期 = 0.25 × 83 ns ≈ 20 ns) / f 仮定: このリポジトリの基板の水晶は 12 MHz (-)'
+    certainty: 仮
+  Net-(U4-DO):
+    driver: U4.1 (DO_1)
+    tr_ns:
+      value: 3.0
+      basis: assumed
+      reason: シリアル EEPROM の DO 出力
+      calc: 2〜10 ns の速い側寄り
+    tr_eff_ns: 3.0
+    f_max_mhz:
+      value: 2
+      basis: assumed
+      reason: 93LC56B の CLK 上限 (2.5〜5.5 V で 2 MHz、ページ未確認)
+      calc: '-'
+    series_r: null
+    source: 'families.yaml eeprom (部品 YAML なし): tr 仮定: シリアル EEPROM の DO 出力 (2〜10 ns の速い側寄り) / f 仮定: 93LC56B の CLK 上限 (2.5〜5.5 V で 2 MHz、ページ未確認) (-)'
+    certainty: 仮
+  Net-(U5-A3):
+    driver: U5.5 (A3_5)
+    tr_ns: *id003
+    tr_eff_ns: 1.0
+    f_max_mhz: *id004
+    series_r: null
+    source: 'data/signal/parts/C129363.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (5.6〜5.10 Switching Characteristics は tpd のみ、p.9 の CpdA の条件 tr = tf = 1 ns は入力)。AVC ファミリの典型 (3.3 V 出力で 0.8〜1.5 ns の速い側を丸めて 1.0
+      ns) / f SN74AVC4T774 4-Bit Dual-Supply Bus Transceiver SCES693I REVISED FEBRUARY 2025 p.1 1 Features'
+    certainty: 仮
+  Net-(U5-B1):
+    driver: U5.14 (B1_14)
+    tr_ns: *id003
+    tr_eff_ns: 1.0
+    f_max_mhz: *id004
+    series_r: null
+    source: 'data/signal/parts/C129363.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (5.6〜5.10 Switching Characteristics は tpd のみ、p.9 の CpdA の条件 tr = tf = 1 ns は入力)。AVC ファミリの典型 (3.3 V 出力で 0.8〜1.5 ns の速い側を丸めて 1.0
+      ns) / f SN74AVC4T774 4-Bit Dual-Supply Bus Transceiver SCES693I REVISED FEBRUARY 2025 p.1 1 Features'
+    certainty: 仮
+  Net-(U5-B2):
+    driver: U5.13 (B2_13)
+    tr_ns: *id003
+    tr_eff_ns: 1.0
+    f_max_mhz: *id004
+    series_r: null
+    source: 'data/signal/parts/C129363.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (5.6〜5.10 Switching Characteristics は tpd のみ、p.9 の CpdA の条件 tr = tf = 1 ns は入力)。AVC ファミリの典型 (3.3 V 出力で 0.8〜1.5 ns の速い側を丸めて 1.0
+      ns) / f SN74AVC4T774 4-Bit Dual-Supply Bus Transceiver SCES693I REVISED FEBRUARY 2025 p.1 1 Features'
+    certainty: 仮
+  Net-(U5-B3):
+    driver: U5.12 (B3_12)
+    tr_ns: *id003
+    tr_eff_ns: 1.0
+    f_max_mhz: *id004
+    series_r: null
+    source: 'data/signal/parts/C129363.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (5.6〜5.10 Switching Characteristics は tpd のみ、p.9 の CpdA の条件 tr = tf = 1 ns は入力)。AVC ファミリの典型 (3.3 V 出力で 0.8〜1.5 ns の速い側を丸めて 1.0
+      ns) / f SN74AVC4T774 4-Bit Dual-Supply Bus Transceiver SCES693I REVISED FEBRUARY 2025 p.1 1 Features'
+    certainty: 仮
+  Net-(U5-B4):
+    driver: U5.11 (B4_11)
+    tr_ns: *id003
+    tr_eff_ns: 1.0
+    f_max_mhz: *id004
+    series_r: null
+    source: 'data/signal/parts/C129363.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (5.6〜5.10 Switching Characteristics は tpd のみ、p.9 の CpdA の条件 tr = tf = 1 ns は入力)。AVC ファミリの典型 (3.3 V 出力で 0.8〜1.5 ns の速い側を丸めて 1.0
+      ns) / f SN74AVC4T774 4-Bit Dual-Supply Bus Transceiver SCES693I REVISED FEBRUARY 2025 p.1 1 Features'
+    certainty: 仮
+  Net-(U6-A2):
+    driver: U6.9 (A2_9)
+    tr_ns: *id005
+    tr_eff_ns: 1.0
+    f_max_mhz: *id006
+    series_r: null
+    source: 'data/signal/parts/C128418.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.9 の CpdA の条件 tr = tf = 1 ns は入力)。AVC ファミリの典型 (3.3 V 出力で 0.8〜1.5 ns の速い側を丸めて 1.0 ns) / f SN74AVC2T245 Dual-Bit Dual-Supply Bus
+      Transceiver SCES692E REVISED SEPTEMBER 2024 p.1 1 Features'
+    certainty: 仮
+  Net-(U6-B1):
+    driver: U6.5 (B1_5)
+    tr_ns: *id005
+    tr_eff_ns: 1.0
+    f_max_mhz: *id006
+    series_r: null
+    source: 'data/signal/parts/C128418.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.9 の CpdA の条件 tr = tf = 1 ns は入力)。AVC ファミリの典型 (3.3 V 出力で 0.8〜1.5 ns の速い側を丸めて 1.0 ns) / f SN74AVC2T245 Dual-Bit Dual-Supply Bus
+      Transceiver SCES692E REVISED SEPTEMBER 2024 p.1 1 Features'
+    certainty: 仮
+  Net-(U6-B2):
+    driver: U6.4 (B2_4)
+    tr_ns: *id005
+    tr_eff_ns: 1.0
+    f_max_mhz: *id006
+    series_r: null
+    source: 'data/signal/parts/C128418.yaml: tr 仮定: データシートに出力の立ち上がり時間の規定なし (p.9 の CpdA の条件 tr = tf = 1 ns は入力)。AVC ファミリの典型 (3.3 V 出力で 0.8〜1.5 ns の速い側を丸めて 1.0 ns) / f SN74AVC2T245 Dual-Bit Dual-Supply Bus
+      Transceiver SCES692E REVISED SEPTEMBER 2024 p.1 1 Features'
+    certainty: 仮

@@ -1,0 +1,47 @@
+# gerber-drc ルール YAML スキーマ案 (v0, 2026-10-14 案。未実装: gerber_drc.py はまだ読まない)
+# 各ルールファイル (factory/*.yaml, user/*.yaml, project/*.yaml) の共通形式。
+# 合成順: factory → user → project (後勝ち)。同じ id のルールはフィールド単位で上書き。
+schema_version: 0
+file:
+  layer: "factory | user | project"   # 必須。どの層のファイルか
+  name: "str"                          # 例 jlcpcb-standard
+  extends: "[str]"                     # 任意。下位層のファイル名 (例 [factory/jlcpcb-standard])
+  source: "str"                        # 任意。出典 URL / 指示者・日付
+rule:                                  # rules: のリスト要素
+  id: "str"                            # 必須・一意。例 track.min_width / user.edge_keepout_copper
+  enabled: "bool (既定 true)"           # 上位層で false にすると無効化
+  severity: "error | warning | info"   # 既定 error
+  check: "str"                         # 検査の種類 (下の check 一覧)
+  value: "number | {min,max,...}"      # 単位は mm (unit で変更可: mm|mil)
+  unit: "mm (既定)"
+  scope:                               # 任意。対象の絞り込み
+    layers: "[F.Cu, B.Cu, In*.Cu, F.Silkscreen, ...]"
+    hole: "pth | npth | via | any"
+    footprints: "[ref/footprint の glob]"   # 例 ["MountingHole:*"]
+  except:                              # 任意。例外
+    footprints: "[glob]"               # 例 ["Connector*:*", "J*"]
+    nets: "[str]"
+  backend: "kicad_dru | gerber_drc | both | none"  # 誰が検査するか (省略時は check から自動決定)
+  verified: "bool"                     # factory 値を公式ページで確認したか
+  ref: "str"                           # 出典 (URL / 節名)
+  note: "str"
+checks:  # check の一覧 (案)。kicad_dru 欄は書き出し可否 (DESIGN.md の分類表と同じ)
+  track_width:            {kicad_dru: yes, gerber_drc: no}
+  clearance:              {kicad_dru: yes, gerber_drc: partial}
+  hole_size:              {kicad_dru: yes, gerber_drc: yes}
+  annular_width:          {kicad_dru: yes, gerber_drc: later}
+  via_diameter:           {kicad_dru: yes, gerber_drc: later}
+  hole_to_hole:           {kicad_dru: yes, gerber_drc: later}
+  hole_clearance:         {kicad_dru: yes, gerber_drc: yes}   # 既存 NPTH_CLEARANCE
+  edge_clearance:         {kicad_dru: yes, gerber_drc: yes}   # 既存 EDGE_CLEARANCE
+  silk_clearance:         {kicad_dru: yes, gerber_drc: later}
+  text_height:            {kicad_dru: yes, gerber_drc: no}
+  text_thickness:         {kicad_dru: yes, gerber_drc: later}
+  copper_over_npth:       {kicad_dru: partial, gerber_drc: yes}  # 既存
+  copper_outside_board:   {kicad_dru: partial, gerber_drc: yes}  # 既存
+  paste_without_copper:   {kicad_dru: no, gerber_drc: yes}       # 既存
+  outline_closed:         {kicad_dru: partial, gerber_drc: yes}  # 既存
+  board_size:             {kicad_dru: no, gerber_drc: later}
+  edge_keepout_courtyard: {kicad_dru: partial, gerber_drc: no}   # 部品は gerber に無い → kicad_pcb 側
+  silk_overlap:           {kicad_dru: partial, gerber_drc: later}
+  hole_diameter_set:      {kicad_dru: yes, gerber_drc: yes}      # 「スタッド穴は全部 Φ2」

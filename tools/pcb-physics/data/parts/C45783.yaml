@@ -1,0 +1,21 @@
+# CL21A226MAQNNNE (Samsung 22 µF ±20% 25 V X5R 0805)。熱データなし (PDN 用)。2026-10-14 PDN 担当。特性は Murata 同等品で代用 (下記)
+lcsc: C45783
+mpn: CL21A226MAQNNNE
+maker: Samsung Electro-Mechanics
+package: 0805 (2012)
+datasheet: {title: "Samsung MLCC CL21A226MAQNNNE", doc: "Samsung spec", rev: "未照合", url: "https://product.samsungsem.com/mlcc/CL21A226MAQNNNE.do (box から未取得)"}
+capacitor:
+  substitute: {mpn: GRM21BR61E226ME44, maker: Murata, why: "同サイズ 0805・22 µF ±20%・25 V・X5R。Samsung 公式の特性が取得できないための代用 (2026-10-14 作者 指示 ①)"}
+  c_nom: {value: 22.0e-6, basis: design, from: "品番 226 = 22 µF、M = ±20%、A = X5R、A = 25 V (Samsung 品番体系)。PDF 未照合"}
+  rated_v: {value: 25, basis: design, from: "品番の電圧コード A = 25 V"}
+  dc_bias:                       # [直流電圧 V, 公称に対する容量比]。間は線形補間。代用品のグラフを画素から読み取り (ds/murata/digitize.py)
+    value: [[0, 1.0], [1.0, 0.976], [2.0, 0.853], [3.3, 0.665], [5.0, 0.461]]
+    basis: datasheet
+    src: {page: 3, table: "Characteristic Data: DC bias characteristics (25 ℃ (AC 条件はグラフの凡例が切れて読めない))", item: "代用品 GRM21BR61E226ME44 の C-DC bias capchange 曲線を画素から読み取り (読み取り誤差 ±2% 程度)", doc: "Murata Product Search Data Sheet GRM21BR61E226ME44# (Farnell 転載 https://www.farnell.com/datasheets/4459589.pdf、Last updated 12/19/2024)"}
+  model:                         # 周波数特性 (ESR・ESL は SPICE モデルに含まれる)。DC バイアスの比をモデル内の C 素子すべてに掛ける
+    value: models/GRM21BR61E226ME44.mod
+    basis: datasheet
+    src: {page: 1, table: "Murata SPICE Model (netlist) GRM v78", item: "GRM21BR61E226ME44.SUBCKT (25 ℃、DC 0 V、小信号、100 Hz〜6 GHz)。代用"}
+  esr: {value: 0.00317, basis: calc, from: "代用品 SPICE モデルの自己共振 1.4 MHz での |Z| (参考。解析は SPICE モデルそのものを使う)"}
+  esl: {value: 2.6e-10, basis: calc, from: "代用品 SPICE モデルの 300 MHz での Im(Z)/ω (参考。測定治具分を除いた部品単体、実装のパッド〜ビアは基板から抽出)"}
+  c_small_signal_1khz: {value: 1.619e-05, basis: calc, from: "代用品 SPICE モデルの 1 kHz の容量 (参考)"}

@@ -1,0 +1,21 @@
+# CL10A106KP8NNNC (Samsung 10 µF ±10% 10 V X5R 0603)。熱データなし (PDN 用)。2026-10-14 PDN 担当。特性は Murata 同等品で代用 (下記)
+lcsc: C19702
+mpn: CL10A106KP8NNNC
+maker: Samsung Electro-Mechanics
+package: 0603 (1608)
+datasheet: {title: "Samsung MLCC CL10A106KP8NNNC", doc: "Samsung spec", rev: "未照合", url: "https://product.samsungsem.com/mlcc/CL10A106KP8NNNC.do (box から未取得)"}
+capacitor:
+  substitute: {mpn: GRM188R61A106ME69, maker: Murata, why: "同サイズ 0603・10 µF・10 V・X5R (Murata は ±20%、Samsung は ±10%)。Samsung 公式の特性が取得できないための代用 (2026-10-14 作者 指示 ①)"}
+  c_nom: {value: 10.0e-6, basis: design, from: "品番 106 = 10 µF、K = ±10%、A = X5R、P = 10 V (Samsung 品番体系)。PDF 未照合"}
+  rated_v: {value: 10, basis: design, from: "品番の電圧コード P = 10 V"}
+  dc_bias:                       # [直流電圧 V, 公称に対する容量比]。間は線形補間。代用品のグラフを画素から読み取り (ds/murata/digitize.py)
+    value: [[0, 1.0], [1.0, 0.899], [1.8, 0.734], [3.3, 0.477], [5.0, 0.306]]
+    basis: datasheet
+    src: {page: 3, table: "Characteristic Data: DC bias characteristics (25 ℃ (凡例が切れて AC 条件は読めない))", item: "代用品 GRM188R61A106ME69 の C-DC bias capchange 曲線を画素から読み取り (読み取り誤差 ±2% 程度)", doc: "Murata Product Search Data Sheet GRM188R61A106ME69# (octopart 転載 https://datasheet.octopart.com/GRM188R61A106ME69D-Murata-datasheet-140704423.pdf、Last updated 2020/05/07)"}
+  model:                         # 周波数特性 (ESR・ESL は SPICE モデルに含まれる)。DC バイアスの比をモデル内の C 素子すべてに掛ける
+    value: models/GRM188R61A106ME69.mod
+    basis: datasheet
+    src: {page: 1, table: "Murata SPICE Model (netlist) GRM v78", item: "GRM188R61A106ME69.SUBCKT (25 ℃、DC 0 V、小信号、100 Hz〜6 GHz)。代用"}
+  esr: {value: 0.00409, basis: calc, from: "代用品 SPICE モデルの自己共振 2.14 MHz での |Z| (参考。解析は SPICE モデルそのものを使う)"}
+  esl: {value: 2.56e-10, basis: calc, from: "代用品 SPICE モデルの 300 MHz での Im(Z)/ω (参考。測定治具分を除いた部品単体、実装のパッド〜ビアは基板から抽出)"}
+  c_small_signal_1khz: {value: 7.97e-06, basis: calc, from: "代用品 SPICE モデルの 1 kHz の容量 (参考)"}

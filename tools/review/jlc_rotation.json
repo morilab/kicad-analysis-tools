@@ -1,0 +1,22 @@
+{
+  "_doc": "JLCPCB の CPL 回転補正 (KiCad の回転 + offset)。コミュニティの表 (JLCKicadTools の rotations.cf 等) からの伝聞で、品番ごとに JLC の部品プレビューで確認が必要。kreview はここに該当し CPL が無補正なら warn「要確認」にするだけ。確認済みの値は status を verified に変え、出典を書く。",
+  "rules": [
+    {"match": "^SOT-223", "offset": 180, "status": "hearsay"},
+    {"match": "^SOT-23(-\\d)?(_|$)", "offset": 180, "status": "hearsay"},
+    {"match": "^TSOT-23", "offset": 180, "status": "hearsay"},
+    {"match": "^SOT-89", "offset": 180, "status": "hearsay"},
+    {"match": "^SOT-353", "offset": 180, "status": "hearsay"},
+    {"match": "^SOT-363", "offset": 180, "status": "hearsay"},
+    {"match": "^QFN-", "offset": 270, "status": "hearsay"},
+    {"match": "^DFN-", "offset": 270, "status": "hearsay"},
+    {"match": "^LQFP-", "offset": 270, "status": "hearsay"},
+    {"match": "^TQFP-", "offset": 270, "status": "hearsay"},
+    {"match": "^TSSOP-", "offset": 270, "status": "hearsay"},
+    {"match": "^MSOP-", "offset": 270, "status": "hearsay"},
+    {"match": "^SOIC-", "offset": 270, "status": "hearsay"},
+    {"match": "^SOP-", "offset": 270, "status": "hearsay"},
+    {"match": "^LED_WS2812B", "offset": 180, "status": "hearsay"},
+    {"match": "^USB_C_Receptacle", "offset": 180, "status": "hearsay"}
+  ],
+  "lcsc_note": "easyeda2kicad で作った lcsc: の footprint は JLC と同じ向きのことが多い (offset 0 想定、未検証)"
+}

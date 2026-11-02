@@ -1,0 +1,32 @@
+# JLCPCB 標準 (FR-4, 1oz, 2 層を基準)。公式: https://jlcpcb.com/capabilities/pcb-capabilities
+# 2026-10-14 22:10 JST に上記ページを確認。verified: false は未確認・推測・慣用値。
+file: {layer: factory, name: jlcpcb-standard, source: "https://jlcpcb.com/capabilities/pcb-capabilities"}
+rules:
+  - {id: track.min_width,        check: track_width,    value: 0.10, verified: true, ref: "Traces / Min. track width and spacing (1 oz): 1-2層 0.10 mm (多層 0.09)"}
+  - {id: copper.min_clearance,   check: clearance,      value: 0.10, verified: true, ref: "同上 spacing 0.10 mm"}
+  - {id: hole.min_drill,         check: hole_size,      value: 0.15, scope: {hole: pth}, verified: true, ref: "Drilling / Drill Diameter 2-layer 0.15 mm (推奨 via 穴 0.2)"}
+  - {id: hole.max_drill,         check: hole_size,      value: {max: 6.3}, verified: true, ref: "Drill Diameter ≤6.3 mm (超は CNC)"}
+  - {id: npth.min_drill,         check: hole_size,      value: 0.50, scope: {hole: npth}, verified: true, ref: "Min. Non-plated holes 0.50 mm"}
+  - {id: via.min_diameter,       check: via_diameter,   value: 0.25, verified: true, ref: "Min. Via hole size/diameter 0.15/0.25 mm"}
+  - {id: pth.min_annular,        check: annular_width,  value: 0.18, severity: error, verified: true, ref: "PTH annular ring 2層 1oz 絶対最小 0.18 (推奨 0.25)"}
+  - {id: pth.rec_annular,        check: annular_width,  value: 0.25, severity: warning, verified: true, ref: "同 推奨 0.25 mm"}
+  - {id: via.hole_to_hole,       check: hole_to_hole,   value: 0.20, scope: {hole: via}, verified: true, ref: "Via Hole-to-Hole Spacing 0.2 mm"}
+  - {id: pad.hole_to_hole,       check: hole_to_hole,   value: 0.45, scope: {hole: pth}, verified: true, ref: "Pad Hole-to-Hole Spacing 0.45 mm"}
+  - {id: npth.copper_clearance,  check: hole_clearance, value: 0.20, scope: {hole: npth}, severity: warning, verified: true, ref: "NPTH to Track 0.2 mm (既存 NPTH_CLEARANCE)"}
+  - {id: pth.track_clearance,    check: hole_clearance, value: 0.28, scope: {hole: pth}, verified: true, ref: "PTH to Track 最小 0.28 (推奨 0.35)"}
+  - {id: edge.copper_clearance,  check: edge_clearance, value: 0.20, verified: true, ref: "Outline / Routed: Copper clearance ≥0.2 mm (V-cut は 0.4)"}
+  - {id: edge.copper_clearance_vcut, check: edge_clearance, value: 0.40, enabled: false, verified: true, ref: "V-Cut 0.4 mm (V-cut 時に project で有効化)"}
+  - {id: silk.min_line_width,    check: text_thickness, value: 0.15, severity: warning, verified: true, ref: "Legend / Minimum Line Width ≥0.15 mm"}
+  - {id: silk.min_text_height,   check: text_height,    value: 1.0,  severity: warning, verified: true, ref: "Legend / Minimum text height 1.0 mm"}
+  - {id: silk.pad_clearance,     check: silk_clearance, value: 0.15, severity: warning, verified: true, ref: "Legend / Pad To Silkscreen 0.15 mm"}
+  - {id: mask.min_bridge,        check: clearance, scope: {layers: [F.Mask, B.Mask]}, value: 0.10, severity: warning, backend: none, verified: true, ref: "Soldermask bridge 0.10 (黒白 0.13)。KiCad では solder_mask_min_width に相当、要確認"}
+  - {id: board.min_size,         check: board_size,     value: {min: [3, 3]}, verified: true, ref: "Minimum Dimensions 3×3 mm"}
+  - {id: board.max_size_2l,      check: board_size,     value: {max: [670, 600]}, verified: true, ref: "Maximum Dimensions FR4 2-layer 670×600 (厚 ≥0.8)"}
+  # ---- 既存検査 (工場の数値ではなく製造データの健全性) ----
+  - {id: fab.copper_over_npth,     check: copper_over_npth,     severity: error,   ref: "gerber-drc 既存"}
+  - {id: fab.copper_outside_board, check: copper_outside_board, severity: error,   ref: "gerber-drc 既存"}
+  - {id: fab.paste_without_copper, check: paste_without_copper, severity: warning, ref: "gerber-drc 既存"}
+  - {id: fab.outline_closed,       check: outline_closed,       severity: warning, ref: "gerber-drc 既存"}
+  # ---- 未確認 ----
+  - {id: fab.raster_tolerance, check: none, value: 0.025, verified: false, note: "工場値ではない。gerber-drc のラスタ誤差 (2*px+0.005)。YAML 化するか未定"}
+  - {id: hole.slot_min_width, check: hole_size, value: 0.5, enabled: false, verified: false, note: "ページ上は Plated slot 2層 0.5 / NPTH slot 1.0。slot の扱いが gerberlib で未確認のため無効"}

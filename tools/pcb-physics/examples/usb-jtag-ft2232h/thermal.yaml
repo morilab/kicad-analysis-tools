@@ -1,0 +1,115 @@
+# usb-jtag-ft2232h rev0.2 の熱解析条件 (案件側)。値オブジェクトの書き方は thermal/parts.py と thermal/cases.py の先頭
+# 毎回 typ (標準) と worst (最悪) の両方を計算し、合否は worst で判定する。{typ: ..., max: ...} は条件ごとに選ばれる。
+project: usb-jtag-ft2232h
+rev: "0.2"
+grid_mm: 0.25
+environment:                    # 共通 (作者 2026-10-14): 水平・部品面上・自然空冷・ケースなし
+  orientation: horizontal_top_up   # horizontal_top_up / horizontal_top_down / vertical
+  vertical_axis: y
+  airflow: {velocity_m_s: 0.0, direction: x}
+  emissivity: {top: 0.9, bottom: 0.9}
+  case: {enabled: false, internal_air_rise_c: 10, h_factor: 0.6, wall_rise_c: 10, wall_emissivity: 0.9}
+cases:
+  typ:   {environment: {ambient_c: 25}}
+  worst: {environment: {ambient_c: 50}}
+# board: ../../data/board/usb-jtag-ft2232h-rev0.2.yaml   # 基板の製造条件 (省略時は data/board/<project>*.yaml を自動で探す)
+stackup: null                   # 明示の層構成上書き (基板 YAML より優先)。通常は null
+plot:                           # 温度マップのカラーバー (全ケース共通で固定)。既定: 25〜95 ℃ inferno、95 ℃ 以上は紫、25 ℃ 未満は最下端色
+  tmin_c: 25
+  tmax_c: 95
+  cmap: inferno
+  over_color: "#9b30ff"
+parts:
+  U1:
+    power:
+      model: vi
+      v: {value: 3.3, basis: design, from: "回路図 +3V3 (U3 AP7361C-33 の出力 3.3 V 公称)。VREGIN・VPHY・VPLL・VCCIO はすべて +3V3"}
+      currents:
+        - name: "コア 1.8 V (内蔵レギュレータ経由で VREGIN 3.3 V から取る)"
+          typ: {value: 0.070, basis: datasheet, part: C27882, src: {page: 48, table: "Table 5.2", item: "Icc1 Core Operating Supply Current 標準 70 mA (VCORE 1.8 V、Normal Operation)"}}
+          max: {value: 0.150, basis: datasheet, part: C27882, src: {page: 48, table: "Table 5.2", item: "Icc1 の最大は記載なし。Ireg Regulator Current 最大 150 mA (内蔵レギュレータの上限) を使う (安全側)"}}
+        - name: "Iccphy (VPHY + VPLL)"
+          typ: {value: 0.030, basis: datasheet, part: C27882, src: {page: 50, table: "Table 5.4", item: "Iccphy 標準 30 mA (HS 480 MHz)"}}
+          max: {value: 0.060, basis: datasheet, part: C27882, src: {page: 50, table: "Table 5.4", item: "Iccphy 最大 60 mA (HS 480 MHz)"}}
+        - name: "VCCIO (I/O)"
+          typ: {value: 0.005, basis: assumed, reason: "データシートに VCCIO の電流の記載なし。JTAG 4 本 + UART 2 本の充放電で概算", calc: "I ≈ 15 pF × 3.3 V × 30 MHz × 6 本 × 活動率 0.5 = 4.5 mA → 5 mA"}
+          max: {value: 0.010, basis: assumed, reason: "同上に余裕 (review.toml の見積り 10 mA と同じ)", calc: "typ 4.5 mA × 約 2 = 10 mA"}
+    notes: ["出力ピンから外へ出る電流も U1 内の発熱とした (安全側)", "内蔵 1.8 V レギュレータの損失 (3.3 - 1.8) V × Iコア も U1 内なので、U1 の発熱 = 3.3 V × 全電流。U3 の損失 (Vin - 3.3 V) × 電流 とは別の電圧降下なので二重計上ではない"]
+  U3:
+    power:
+      model: ldo
+      vin:
+        typ: {value: 5.0, basis: design, from: "USB 2.0 VBUS 公称 5.0 V"}
+        max: {value: 5.5, basis: design, from: "review.toml [config.power.\"+3V3\"] vin_max = 5.50 (USB VBUS の最高)"}
+      vout: {value: 3.3, basis: datasheet, part: C500795, src: {page: 1, table: "Features / Ordering Information", item: "AP7361C-33: 3.3 V 固定出力"}}
+      iq:
+        typ: {value: 0.00006, basis: datasheet, part: C500795, src: {page: 5, table: "Electrical Characteristics", item: "IQ 標準 60 µA"}}
+        max: {value: 0.00008, basis: datasheet, part: C500795, src: {page: 5, table: "Electrical Characteristics", item: "IQ 最大 80 µA"}}
+      loads:
+        - name: "U1 FT2232H"
+          typ: {value: 0.105, basis: design, from: "このファイルの U1 の電流 typ の和", calc: "70 + 30 + 5 = 105 mA"}
+          max: {value: 0.220, basis: design, from: "このファイルの U1 の電流 max の和", calc: "150 + 60 + 10 = 220 mA"}
+        - name: "U4 93LC56B"
+          typ: {value: 0.001, basis: design, from: "review.toml loads U4 の注記 (読み出し 1 mA)"}
+          max: {value: 0.002, basis: design, from: "review.toml loads U4 (書き込み時 Icc 最大 2 mA)"}
+        - name: "D1 LED"
+          typ: {value: 0.0015, basis: design, from: "review.toml loads D1 ((3.3 - 1.8) / 1k)"}
+          max: {value: 0.0015, basis: design, from: "同上 (抵抗で決まる)"}
+        - name: "U5 SN74AVC4T774 A 側"
+          typ: {value: 0.003, basis: assumed, reason: "max (review.toml 6 mA、30 MHz 連続) の半分。JTAG は間欠動作", calc: "6 mA × 0.5 = 3 mA"}
+          max: {value: 0.006, basis: design, from: "review.toml loads U5"}
+        - name: "U6 SN74AVC2T245 A 側"
+          typ: {value: 0.0005, basis: design, from: "review.toml loads U6 (小さいので typ = max)"}
+          max: {value: 0.0005, basis: design, from: "review.toml loads U6"}
+        - name: "プルアップ抵抗 R*"
+          typ: {value: 0.003, basis: design, from: "review.toml loads R* (抵抗で決まるので typ = max)"}
+          max: {value: 0.003, basis: design, from: "review.toml loads R*"}
+        - name: "拡張端子 J4-J7 外部負荷"
+          typ: {value: 0.0, basis: design, from: "標準では外部負荷なし (J4-J7 は DNP)"}
+          max: {value: 0.002, basis: design, from: "review.toml loads J4-J7 (外部負荷 合計 2 mA、2026-10-14 作者 確定。旧条件 10 mA から 2026-10-19 に変更 = 最悪電流 235.08 mA にそろえる、FMEA D-13 記録 review/2026-10-19-fmea-d13-f1-ptc.md 1 節)"}
+    pins:                       # ピンごとの電流 (IR ドロップ用、正 = 部品へ流れ込む)。負荷の和 + Iq
+      "1": {name: IN, current: {typ: {value: 0.11406, basis: design, from: "U3 の loads typ の和 + Iq typ", calc: "114.0 mA + 0.06 mA"}, max: {value: 0.23508, basis: design, from: "U3 の loads max の和 + Iq max", calc: "235.0 mA + 0.08 mA"}}}
+      "3": {name: OUT, current: {typ: {value: -0.114, basis: design, from: "U3 の loads typ の和 (流れ出す)", calc: "-(105+1+1.5+3+0.5+3+0) mA"}, max: {value: -0.235, basis: design, from: "U3 の loads max の和 (流れ出す)", calc: "-(220+2+1.5+6+0.5+3+2) mA"}}}
+    tj_limit: {value: 125, basis: design, from: "review.toml [config.power.\"+3V3\"] tj_max = 125 (設計上限。データシートの絶対最大は 150 ℃ = p.4)"}
+  FB1:
+    power:
+      model: i2r                # 導通損 P = I² × DCR (rev0.2 0f23a49 で GZ2012D101TF に交換)
+      r:
+        typ: {value: 0.10, basis: assumed, part: C1015, reason: "データシートに DCR 標準値なし (C1015.yaml dcr.typ)", calc: "0.15 Ω × 2/3 = 0.10 Ω"}
+        max: {value: 0.15, basis: datasheet, part: C1015, src: {page: 4, table: "3. Electrical Characteristics", item: "DCR (Ω) Max. 0.15"}}
+      current:
+        typ: {value: 0.030, basis: datasheet, part: C27882, src: {page: 50, table: "Table 5.4", item: "FB1 は +3V3 → +3.3VA (VPHY + VPLL、回路図の注記『VPHY/VPLL = FB1 + C (LC filter)』)。流れるのは Iccphy 標準 30 mA (HS 480 MHz)"}}
+        max: {value: 0.060, basis: datasheet, part: C27882, src: {page: 50, table: "Table 5.4", item: "Iccphy 最大 60 mA (HS 480 MHz)"}}
+  F1:                           # 案D (基板 7bf3014〜): VBUS → F1 → VBUS_F (C1 / U3.1)。29d7124〜 は 0805L110WR (C468889)。それより前の F1 (0805L050WR C207022: 7bf3014〜0887e03、0805L010YR: +3V3_EXT 側) には使わないこと
+    power:
+      model: i2r                # 導通損 P = I² × R (PTC。R は 20 ℃ の値で、温度上昇による R の増加は入れていない)
+      r:
+        typ: {value: 0.105, basis: assumed, part: C468889, reason: "データシートに R 標準値なし (C468889.yaml resistance.typ)。実装後は R min〜R 1max の間", calc: "(R min 0.050 + R 1max 0.160) / 2 = 0.105 Ω"}
+        max: {value: 0.160, basis: datasheet, part: C468889, src: {page: 1, table: "Electrical Characteristics", item: "0805L110: R 1max 0.160 Ω (20 ℃、トリップ後 1 時間 / リフロー後の最大)"}}
+      current:
+        typ: {value: 0.11406, basis: design, from: "回路図 (gen_sch.py 案D): VBUS_F の負荷は C1 と U3.1 (IN) だけ (U2.5 USBLC6 の VBUS は F1 の上流)。F1 の電流 = U3 の入力電流 = このファイルの U3 pins.1 typ", calc: "U3 loads typ の和 114.0 mA (U1 105 + U4 1 + D1 1.5 + U5 3 + U6 0.5 + R* 3 + J4-J7 0) + Iq 0.06 mA = 114.06 mA"}
+        max: {value: 0.23508, basis: design, from: "FMEA D-13 記録 (review/2026-10-19-fmea-d13-f1-ptc.md 1 節) でそろえた最悪電流 = このファイルの U3 pins.1 max", calc: "U3 loads max の和 235.0 mA (U1 220 + U4 2 + D1 1.5 + U5 6 + U6 0.5 + R* 3 + J4-J7 2) + Iq 0.08 mA = 235.08 mA"}
+  U5:
+    power:
+      model: vi
+      v: {value: 3.3, basis: design, from: "回路図 +3V3 (A 側)"}
+      currents:
+        - name: "A 側 動的電流"
+          typ: {value: 0.003, basis: assumed, reason: "max の半分 (JTAG は間欠動作)", calc: "6 mA × 0.5 = 3 mA"}
+          max: {value: 0.006, basis: design, from: "review.toml loads U5 (30 MHz の充放電分)"}
+  U4:
+    power:
+      model: vi
+      v: {value: 3.3, basis: design, from: "回路図 +3V3"}
+      currents:
+        - name: "Icc"
+          typ: {value: 0.001, basis: design, from: "review.toml loads U4 の注記 (読み出し 1 mA)"}
+          max: {value: 0.002, basis: design, from: "review.toml loads U4 (書き込み時 Icc 最大 2 mA)"}
+  D1:
+    power:
+      model: vi
+      v: {value: 1.8, basis: assumed, reason: "赤色 LED KT-0603R の Vf 未確認。赤 LED の一般値", calc: "Vf = 1.8 V (赤 1.8〜2.2 V の下側。差は 0.6 mW 以下)"}
+      currents:
+        - name: "LED 電流"
+          typ: {value: 0.0015, basis: design, from: "review.toml loads D1 ((3.3 - 1.8) / 1k)"}
+          max: {value: 0.0015, basis: design, from: "同上 (抵抗で決まる)"}

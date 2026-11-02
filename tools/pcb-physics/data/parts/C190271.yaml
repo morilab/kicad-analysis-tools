@@ -1,0 +1,18 @@
+# 93LC56BT-I/OT (SOT-23-6、Microwire EEPROM 2 Kbit)。熱データなし (ピン電流・許容電圧だけ、IR ドロップ用)。2026-10-14 IR ドロップ担当
+lcsc: C190271
+mpn: 93LC56BT-I/OT
+maker: Microchip
+package: SOT-23-6
+datasheet: {title: "93AA56A/B/C, 93LC56A/B/C, 93C56A/B/C 2K Microwire Compatible Serial EEPROM", doc: "DS21794", rev: "未照合", url: "https://ww1.microchip.com/downloads/en/DeviceDoc/21794G.pdf (box から未取得)"}
+pins:
+  "6":
+    name: VCC
+    net_role: power_in
+    current:
+      typ: {value: 0.001, basis: assumed, reason: "読み出し時 Icc 最大 1 mA (93LC 系の一般値、usb-jtag-ft2232h review.toml loads U4 の注記と同じ)。PDF 未照合", calc: "1 mA (読み出しの最大を標準として使う、安全側)"}
+      max: {value: 0.002, basis: assumed, reason: "書き込み時 Icc 最大 2 mA (93LC 系の一般値、review.toml loads U4)。PDF 未照合", calc: "2 mA"}
+    v_range:
+      kind: recommended
+      min: {value: 2.5, basis: assumed, reason: "93LC (LC = 2.5〜5.5 V 品) の VCC 下限。PDF 未照合", calc: "2.5 V"}
+      max: {value: 5.5, basis: assumed, reason: "同 上限", calc: "5.5 V"}
+  "2": {name: VSS, net_role: ground}

@@ -1,0 +1,8 @@
+# Python 3.12 (Ubuntu 24.04) で確認。KiCad の pcbnew モジュールは使わない。
+numpy>=1.26
+scipy>=1.11
+matplotlib>=3.8
+Pillow>=10.0
+PyYAML>=6.0
+pyamg>=5.0        # 任意: pcb-physics の熱ソルバーの前処理 (無ければ直接法)
+pytest>=8.0       # テスト用

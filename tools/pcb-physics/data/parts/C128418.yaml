@@ -1,0 +1,19 @@
+# SN74AVC2T245RSWR (UQFN-10、2 bit 双方向電圧変換)。熱データなし (IR ドロップ用)。2026-10-14 IR ドロップ担当
+lcsc: C128418
+mpn: SN74AVC2T245RSWR
+maker: Texas Instruments
+package: UQFN-10 1.4x1.8
+datasheet: {title: "SN74AVC2T245 Dual-Bit Dual-Supply Bus Transceiver", doc: "SCES692", rev: "未照合", url: "https://www.ti.com/lit/ds/symlink/sn74avc2t245.pdf (box から未取得)"}
+pins:
+  "7": &vcc
+    name: VCC (7/10 = +3V3)
+    net_role: power_in
+    current:
+      typ: {value: 0.00001, basis: assumed, reason: "静止 ICC 数 µA (AVC 系一般値) を 2 ピンに等分", calc: "約 20 µA / 2 = 10 µA"}
+      max: {value: 0.00025, basis: assumed, reason: "review.toml loads U6 0.5 mA (ICC 最大 16 µA + UART 3 Mbps 2 bit の充放電) を 2 ピンに等分", calc: "0.5 mA / 2"}
+    v_range:
+      kind: recommended
+      min: {value: 1.2, basis: assumed, reason: "SN74AVC2T245 の VCC 下限 1.2 V (TI 一般値)。PDF 未照合", calc: "1.2 V"}
+      max: {value: 3.6, basis: assumed, reason: "同 上限", calc: "3.6 V"}
+  "10": *vcc
+  "1": {name: GND, net_role: ground}

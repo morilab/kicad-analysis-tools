@@ -1,0 +1,57 @@
+# 部品の信号特性 YAML (parts/<LCSC>.yaml) が無い時のファミリ推定。全部 確度 = 仮 (basis: assumed)。
+# match: 部品の Value / ライブラリ名 / MPN に対する正規表現 (大文字小文字無視)。上から順に最初に当たったもの。
+# tr は 10-90%。リターンパスの危険度は「速いほど危ない」ので範囲の速い側 (小さい値) を value にする。
+families:
+  usb_hs:
+    tr_ns: {value: 0.5, basis: assumed, reason: "USB 2.0 規格の High-Speed ドライバの立ち上がり下限 500 ps (7.1.2.2 節、ページ・表番号は box で未確認)", calc: "tr = 0.5 ns (規格の下限 = 最も速い場合)"}
+    f_max_mhz: {value: 240, basis: assumed, reason: "480 Mbps の基本波", calc: "480 / 2 = 240 MHz"}
+  usb_fs:
+    tr_ns: {value: 4.0, basis: assumed, reason: "USB 2.0 規格の Full-Speed の立ち上がり 4〜20 ns (7.1.1.1 節、ページ未確認)", calc: "範囲の速い側 4 ns"}
+    f_max_mhz: {value: 6, basis: assumed, reason: "12 Mbps の基本波", calc: "12 / 2 = 6 MHz"}
+  switch_input:
+    tr_ns: {value: 10, basis: assumed, reason: "スイッチ (SW*) がつながるネット。MCU 側は入力で、エッジは接点とプルアップ・ネットの容量で決まり、繰り返しもまれ", calc: "接点の閉じ始めは数 ns だがチャタリングの中の 1 回で、プルアップ 10 kΩ × 1 nF の RC を入れる設計が多い → 速い側を 10 ns と置く (要確認、overrides で直す)"}
+    f_max_mhz: {value: 0.001, basis: assumed, reason: "人の操作", calc: "1 kHz 未満"}
+  crystal:
+    match: "^(Y|X)\\d"
+    tr_ns: {value: 20, basis: assumed, reason: "水晶発振 (12 MHz 前後) の波形は正弦波に近い", calc: "tr ≈ 0.25 × 周期 = 0.25 × 83 ns ≈ 20 ns"}
+    f_max_mhz: {value: 12, basis: assumed, reason: "このリポジトリの基板の水晶は 12 MHz", calc: "-"}
+  avc:
+    match: "74AVC|AVC\\dT"
+    tr_ns: {value: 1.0, basis: assumed, reason: "TI AVC ファミリ。データシートに出力の tr 規定なし (試験条件の入力 tr = 1 ns)", calc: "3.3 V 出力で 0.8〜1.5 ns の速い側を丸めて 1.0 ns"}
+    r_out_ohm: {value: 25, basis: assumed, reason: "AVC の動的出力抵抗 (Dynamic Output Control) の典型", calc: "20〜30 Ω の中央"}
+  rp2040:
+    match: "RP2040"
+    tr_ns: {value: 1.0, basis: assumed, reason: "RP2040 GPIO / QSPI は slew fast 設定可、tr の規定は未確認", calc: "3.3 V 8 mA 駆動・負荷 10 pF で 1〜2 ns の速い側"}
+    f_max_mhz: {value: 133, basis: assumed, reason: "QSPI の SCLK 上限 (システムクロック 133 MHz、2 分周なら 66 MHz)", calc: "速い側 133 MHz"}
+  spi_flash:
+    match: "W25Q|GD25Q|IS25|MX25"
+    tr_ns: {value: 1.0, basis: assumed, reason: "SPI フラッシュの出力 (DO/IO) の立ち上がり、データシートの tCLQV 等から 1 ns 前後", calc: "速い側 1 ns"}
+    f_max_mhz: {value: 133, basis: assumed, reason: "W25Q128JV の Fast Read 上限 133 MHz (ページ未確認)", calc: "-"}
+  esp32s3:
+    match: "ESP32-S3"
+    tr_ns: {value: 1.5, basis: assumed, reason: "ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし", calc: "負荷 10 pF で 1〜3 ns の速い側寄り"}
+    f_max_mhz: {value: 80, basis: assumed, reason: "SPI マスタ上限 80 MHz", calc: "-"}
+  fpga_lvcmos33:
+    match: "GW1N|GW2A|ICE40|XC7|LFE5|10M\\d"
+    tr_ns: {value: 1.0, basis: assumed, reason: "FPGA の LVCMOS33 出力 (8 mA、slew fast) の典型", calc: "0.7〜1.5 ns の速い側を丸めて 1.0 ns"}
+    f_max_mhz: {value: 100, basis: assumed, reason: "汎用 I/O の実用上限", calc: "-"}
+  audio_codec:
+    match: "ES8311|ES8388|WM8960|TLV320|PCM51"
+    tr_ns: {value: 3.0, basis: assumed, reason: "オーディオコーデックの I2S 出力 (SDOUT) は駆動が弱い", calc: "2〜5 ns の速い側寄り"}
+    f_max_mhz: {value: 12.288, basis: assumed, reason: "MCLK 上限の典型", calc: "-"}
+  class_d:
+    match: "NS4150|PAM8302|MAX9837|TPA2"
+    tr_ns: {value: 5.0, basis: assumed, reason: "D 級アンプの出力 (PWM、大電流) の立ち上がり", calc: "数 ns〜10 ns の速い側"}
+    f_max_mhz: {value: 0.6, basis: assumed, reason: "PWM 周波数 300〜600 kHz", calc: "-"}
+  eeprom:
+    match: "93LC|93C|24LC|24C|AT24"
+    tr_ns: {value: 3.0, basis: assumed, reason: "シリアル EEPROM の DO 出力", calc: "2〜10 ns の速い側寄り"}
+    f_max_mhz: {value: 2, basis: assumed, reason: "93LC56B の CLK 上限 (2.5〜5.5 V で 2 MHz、ページ未確認)", calc: "-"}
+  generic_cmos33:
+    match: ".*"
+    tr_ns: {value: 2.0, basis: assumed, reason: "部品不明の 3.3 V CMOS 出力", calc: "1〜5 ns の速い側寄り"}
+  external:
+    tr_ns: {value: 2.0, basis: assumed, reason: "コネクタの先 (相手側のドライバ不明)。JTAG ターゲット・UART 相手の典型的な 3.3 V CMOS", calc: "1〜5 ns の速い側寄り"}
+defaults:
+  c_load_pf: {value: 10, basis: assumed, reason: "直列抵抗の後ろの負荷 (受け側の入力容量 3〜5 pF + 配線 20〜50 mm × 0.1 pF/mm)", calc: "5 + 5 = 10 pF"}
+  v_mm_per_ns: {value: 150, basis: assumed, reason: "FR-4 マイクロストリップの伝搬速度 (実効比誘電率 3〜4)", calc: "c / √4 = 300 / 2 = 150 mm/ns"}

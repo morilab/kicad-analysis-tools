@@ -1,0 +1,340 @@
+# ネットごとの信号特性 (リターンパス P20/P21 の点数に使う)。形式は data/signal/README.md
+board: rp2040-keypad10
+generated_by: 'tools/review/signal_table.py (手で直す値は overrides: に書く。nets: は再生成で上書き)'
+defaults:
+  c_load_pf:
+    value: 10
+    basis: assumed
+    reason: 直列抵抗の後ろの負荷 (受け側の入力容量 3〜5 pF + 配線 20〜50 mm × 0.1 pF/mm)
+    calc: 5 + 5 = 10 pF
+  v_mm_per_ns:
+    value: 150
+    basis: assumed
+    reason: FR-4 マイクロストリップの伝搬速度 (実効比誘電率 3〜4)
+    calc: c / √4 = 300 / 2 = 150 mm/ns
+  hs_usb: false
+overrides: {}
+nets:
+  /BOOT_SW:
+    driver: スイッチ SW11
+    tr_ns: &id002
+      value: 10
+      basis: assumed
+      reason: スイッチ (SW*) がつながるネット。MCU 側は入力で、エッジは接点とプルアップ・ネットの容量で決まり、繰り返しもまれ
+      calc: 接点の閉じ始めは数 ns だがチャタリングの中の 1 回で、プルアップ 10 kΩ × 1 nF の RC を入れる設計が多い → 速い側を 10 ns と置く (要確認、overrides で直す)
+    tr_eff_ns: 10.0
+    f_max_mhz: &id003
+      value: 0.001
+      basis: assumed
+      reason: 人の操作
+      calc: 1 kHz 未満
+    series_r: null
+    source: 'families.yaml switch_input: tr 仮定: スイッチ (SW*) がつながるネット。MCU 側は入力で、エッジは接点とプルアップ・ネットの容量で決まり、繰り返しもまれ (接点の閉じ始めは数 ns だがチャタリングの中の 1 回で、プルアップ 10 kΩ × 1 nF の RC を入れる設計が多い → 速い側を 10 ns と置く (要確認、overrides
+      で直す)) / f 仮定: 人の操作 (1 kHz 未満)'
+    certainty: 仮
+  /CC1:
+    driver: コネクタの先 (外部)
+    tr_ns: &id001
+      value: 2.0
+      basis: assumed
+      reason: コネクタの先 (相手側のドライバ不明)。JTAG ターゲット・UART 相手の典型的な 3.3 V CMOS
+      calc: 1〜5 ns の速い側寄り
+    tr_eff_ns: 2.0
+    f_max_mhz: null
+    series_r: null
+    source: 'families.yaml external: tr 仮定: コネクタの先 (相手側のドライバ不明)。JTAG ターゲット・UART 相手の典型的な 3.3 V CMOS (1〜5 ns の速い側寄り)'
+    certainty: 仮
+  /CC2:
+    driver: コネクタの先 (外部)
+    tr_ns: *id001
+    tr_eff_ns: 2.0
+    f_max_mhz: null
+    series_r: null
+    source: 'families.yaml external: tr 仮定: コネクタの先 (相手側のドライバ不明)。JTAG ターゲット・UART 相手の典型的な 3.3 V CMOS (1〜5 ns の速い側寄り)'
+    certainty: 仮
+  /KEY1:
+    driver: スイッチ SW1
+    tr_ns: *id002
+    tr_eff_ns: 10.0
+    f_max_mhz: *id003
+    series_r: null
+    source: 'families.yaml switch_input: tr 仮定: スイッチ (SW*) がつながるネット。MCU 側は入力で、エッジは接点とプルアップ・ネットの容量で決まり、繰り返しもまれ (接点の閉じ始めは数 ns だがチャタリングの中の 1 回で、プルアップ 10 kΩ × 1 nF の RC を入れる設計が多い → 速い側を 10 ns と置く (要確認、overrides
+      で直す)) / f 仮定: 人の操作 (1 kHz 未満)'
+    certainty: 仮
+  /KEY2:
+    driver: スイッチ SW2
+    tr_ns: *id002
+    tr_eff_ns: 10.0
+    f_max_mhz: *id003
+    series_r: null
+    source: 'families.yaml switch_input: tr 仮定: スイッチ (SW*) がつながるネット。MCU 側は入力で、エッジは接点とプルアップ・ネットの容量で決まり、繰り返しもまれ (接点の閉じ始めは数 ns だがチャタリングの中の 1 回で、プルアップ 10 kΩ × 1 nF の RC を入れる設計が多い → 速い側を 10 ns と置く (要確認、overrides
+      で直す)) / f 仮定: 人の操作 (1 kHz 未満)'
+    certainty: 仮
+  /KEY3:
+    driver: スイッチ SW3
+    tr_ns: *id002
+    tr_eff_ns: 10.0
+    f_max_mhz: *id003
+    series_r: null
+    source: 'families.yaml switch_input: tr 仮定: スイッチ (SW*) がつながるネット。MCU 側は入力で、エッジは接点とプルアップ・ネットの容量で決まり、繰り返しもまれ (接点の閉じ始めは数 ns だがチャタリングの中の 1 回で、プルアップ 10 kΩ × 1 nF の RC を入れる設計が多い → 速い側を 10 ns と置く (要確認、overrides
+      で直す)) / f 仮定: 人の操作 (1 kHz 未満)'
+    certainty: 仮
+  /KEY4:
+    driver: スイッチ SW4
+    tr_ns: *id002
+    tr_eff_ns: 10.0
+    f_max_mhz: *id003
+    series_r: null
+    source: 'families.yaml switch_input: tr 仮定: スイッチ (SW*) がつながるネット。MCU 側は入力で、エッジは接点とプルアップ・ネットの容量で決まり、繰り返しもまれ (接点の閉じ始めは数 ns だがチャタリングの中の 1 回で、プルアップ 10 kΩ × 1 nF の RC を入れる設計が多い → 速い側を 10 ns と置く (要確認、overrides
+      で直す)) / f 仮定: 人の操作 (1 kHz 未満)'
+    certainty: 仮
+  /KEY5:
+    driver: スイッチ SW5
+    tr_ns: *id002
+    tr_eff_ns: 10.0
+    f_max_mhz: *id003
+    series_r: null
+    source: 'families.yaml switch_input: tr 仮定: スイッチ (SW*) がつながるネット。MCU 側は入力で、エッジは接点とプルアップ・ネットの容量で決まり、繰り返しもまれ (接点の閉じ始めは数 ns だがチャタリングの中の 1 回で、プルアップ 10 kΩ × 1 nF の RC を入れる設計が多い → 速い側を 10 ns と置く (要確認、overrides
+      で直す)) / f 仮定: 人の操作 (1 kHz 未満)'
+    certainty: 仮
+  /KEY6:
+    driver: スイッチ SW6
+    tr_ns: *id002
+    tr_eff_ns: 10.0
+    f_max_mhz: *id003
+    series_r: null
+    source: 'families.yaml switch_input: tr 仮定: スイッチ (SW*) がつながるネット。MCU 側は入力で、エッジは接点とプルアップ・ネットの容量で決まり、繰り返しもまれ (接点の閉じ始めは数 ns だがチャタリングの中の 1 回で、プルアップ 10 kΩ × 1 nF の RC を入れる設計が多い → 速い側を 10 ns と置く (要確認、overrides
+      で直す)) / f 仮定: 人の操作 (1 kHz 未満)'
+    certainty: 仮
+  /KEY7:
+    driver: スイッチ SW7
+    tr_ns: *id002
+    tr_eff_ns: 10.0
+    f_max_mhz: *id003
+    series_r: null
+    source: 'families.yaml switch_input: tr 仮定: スイッチ (SW*) がつながるネット。MCU 側は入力で、エッジは接点とプルアップ・ネットの容量で決まり、繰り返しもまれ (接点の閉じ始めは数 ns だがチャタリングの中の 1 回で、プルアップ 10 kΩ × 1 nF の RC を入れる設計が多い → 速い側を 10 ns と置く (要確認、overrides
+      で直す)) / f 仮定: 人の操作 (1 kHz 未満)'
+    certainty: 仮
+  /KEY8:
+    driver: スイッチ SW8
+    tr_ns: *id002
+    tr_eff_ns: 10.0
+    f_max_mhz: *id003
+    series_r: null
+    source: 'families.yaml switch_input: tr 仮定: スイッチ (SW*) がつながるネット。MCU 側は入力で、エッジは接点とプルアップ・ネットの容量で決まり、繰り返しもまれ (接点の閉じ始めは数 ns だがチャタリングの中の 1 回で、プルアップ 10 kΩ × 1 nF の RC を入れる設計が多い → 速い側を 10 ns と置く (要確認、overrides
+      で直す)) / f 仮定: 人の操作 (1 kHz 未満)'
+    certainty: 仮
+  /KEY9:
+    driver: スイッチ SW9
+    tr_ns: *id002
+    tr_eff_ns: 10.0
+    f_max_mhz: *id003
+    series_r: null
+    source: 'families.yaml switch_input: tr 仮定: スイッチ (SW*) がつながるネット。MCU 側は入力で、エッジは接点とプルアップ・ネットの容量で決まり、繰り返しもまれ (接点の閉じ始めは数 ns だがチャタリングの中の 1 回で、プルアップ 10 kΩ × 1 nF の RC を入れる設計が多い → 速い側を 10 ns と置く (要確認、overrides
+      で直す)) / f 仮定: 人の操作 (1 kHz 未満)'
+    certainty: 仮
+  /KEY10:
+    driver: スイッチ SW10
+    tr_ns: *id002
+    tr_eff_ns: 10.0
+    f_max_mhz: *id003
+    series_r: null
+    source: 'families.yaml switch_input: tr 仮定: スイッチ (SW*) がつながるネット。MCU 側は入力で、エッジは接点とプルアップ・ネットの容量で決まり、繰り返しもまれ (接点の閉じ始めは数 ns だがチャタリングの中の 1 回で、プルアップ 10 kΩ × 1 nF の RC を入れる設計が多い → 速い側を 10 ns と置く (要確認、overrides
+      で直す)) / f 仮定: 人の操作 (1 kHz 未満)'
+    certainty: 仮
+  /LED:
+    driver: U1.37 (GPIO25_37)
+    tr_ns: &id004
+      value: 1.0
+      basis: assumed
+      reason: RP2040 GPIO / QSPI は slew fast 設定可、tr の規定は未確認
+      calc: 3.3 V 8 mA 駆動・負荷 10 pF で 1〜2 ns の速い側
+    tr_eff_ns: 1.0
+    f_max_mhz: &id005
+      value: 133
+      basis: assumed
+      reason: QSPI の SCLK 上限 (システムクロック 133 MHz、2 分周なら 66 MHz)
+      calc: 速い側 133 MHz
+    series_r: null
+    source: 'families.yaml rp2040 (部品 YAML なし): tr 仮定: RP2040 GPIO / QSPI は slew fast 設定可、tr の規定は未確認 (3.3 V 8 mA 駆動・負荷 10 pF で 1〜2 ns の速い側) / f 仮定: QSPI の SCLK 上限 (システムクロック 133 MHz、2 分周なら 66 MHz) (速い側 133
+      MHz)'
+    certainty: 仮
+  /LED_A:
+    driver: U1.37 (GPIO25_37)
+    tr_ns: *id004
+    tr_eff_ns: 22.023
+    f_max_mhz: *id005
+    series_r:
+      ohm: 1000.0
+      path: R9 1k
+    source: 'families.yaml rp2040 (部品 YAML なし): tr 仮定: RP2040 GPIO / QSPI は slew fast 設定可、tr の規定は未確認 (3.3 V 8 mA 駆動・負荷 10 pF で 1〜2 ns の速い側) / f 仮定: QSPI の SCLK 上限 (システムクロック 133 MHz、2 分周なら 66 MHz) (速い側 133
+      MHz)'
+    certainty: 仮
+  /QSPI_SCLK:
+    driver: U1.52 (QSPI_SCLK_52)
+    tr_ns: *id004
+    tr_eff_ns: 1.0
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml rp2040 (部品 YAML なし): tr 仮定: RP2040 GPIO / QSPI は slew fast 設定可、tr の規定は未確認 (3.3 V 8 mA 駆動・負荷 10 pF で 1〜2 ns の速い側) / f 仮定: QSPI の SCLK 上限 (システムクロック 133 MHz、2 分周なら 66 MHz) (速い側 133
+      MHz)'
+    certainty: 仮
+  /QSPI_SD0:
+    driver: U1.53 (QSPI_SD0_53)
+    tr_ns: *id004
+    tr_eff_ns: 1.0
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml rp2040 (部品 YAML なし): tr 仮定: RP2040 GPIO / QSPI は slew fast 設定可、tr の規定は未確認 (3.3 V 8 mA 駆動・負荷 10 pF で 1〜2 ns の速い側) / f 仮定: QSPI の SCLK 上限 (システムクロック 133 MHz、2 分周なら 66 MHz) (速い側 133
+      MHz)'
+    certainty: 仮
+  /QSPI_SD1:
+    driver: U1.55 (QSPI_SD1_55)
+    tr_ns: *id004
+    tr_eff_ns: 1.0
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml rp2040 (部品 YAML なし): tr 仮定: RP2040 GPIO / QSPI は slew fast 設定可、tr の規定は未確認 (3.3 V 8 mA 駆動・負荷 10 pF で 1〜2 ns の速い側) / f 仮定: QSPI の SCLK 上限 (システムクロック 133 MHz、2 分周なら 66 MHz) (速い側 133
+      MHz)'
+    certainty: 仮
+  /QSPI_SD2:
+    driver: U1.54 (QSPI_SD2_54)
+    tr_ns: *id004
+    tr_eff_ns: 1.0
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml rp2040 (部品 YAML なし): tr 仮定: RP2040 GPIO / QSPI は slew fast 設定可、tr の規定は未確認 (3.3 V 8 mA 駆動・負荷 10 pF で 1〜2 ns の速い側) / f 仮定: QSPI の SCLK 上限 (システムクロック 133 MHz、2 分周なら 66 MHz) (速い側 133
+      MHz)'
+    certainty: 仮
+  /QSPI_SD3:
+    driver: U1.51 (QSPI_SD3_51)
+    tr_ns: *id004
+    tr_eff_ns: 1.0
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml rp2040 (部品 YAML なし): tr 仮定: RP2040 GPIO / QSPI は slew fast 設定可、tr の規定は未確認 (3.3 V 8 mA 駆動・負荷 10 pF で 1〜2 ns の速い側) / f 仮定: QSPI の SCLK 上限 (システムクロック 133 MHz、2 分周なら 66 MHz) (速い側 133
+      MHz)'
+    certainty: 仮
+  /QSPI_SS:
+    driver: U1.56 (~{QSPI_SS}_56)
+    tr_ns: *id004
+    tr_eff_ns: 1.0
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml rp2040 (部品 YAML なし): tr 仮定: RP2040 GPIO / QSPI は slew fast 設定可、tr の規定は未確認 (3.3 V 8 mA 駆動・負荷 10 pF で 1〜2 ns の速い側) / f 仮定: QSPI の SCLK 上限 (システムクロック 133 MHz、2 分周なら 66 MHz) (速い側 133
+      MHz)'
+    certainty: 仮
+  /RUN:
+    driver: スイッチ SW12
+    tr_ns: *id002
+    tr_eff_ns: 10.0
+    f_max_mhz: *id003
+    series_r: null
+    source: 'families.yaml switch_input: tr 仮定: スイッチ (SW*) がつながるネット。MCU 側は入力で、エッジは接点とプルアップ・ネットの容量で決まり、繰り返しもまれ (接点の閉じ始めは数 ns だがチャタリングの中の 1 回で、プルアップ 10 kΩ × 1 nF の RC を入れる設計が多い → 速い側を 10 ns と置く (要確認、overrides
+      で直す)) / f 仮定: 人の操作 (1 kHz 未満)'
+    certainty: 仮
+  /SWCLK:
+    driver: コネクタの先 (外部)
+    tr_ns: *id001
+    tr_eff_ns: 2.0
+    f_max_mhz: null
+    series_r: null
+    source: 'families.yaml external: tr 仮定: コネクタの先 (相手側のドライバ不明)。JTAG ターゲット・UART 相手の典型的な 3.3 V CMOS (1〜5 ns の速い側寄り)'
+    certainty: 仮
+  /SWDIO:
+    driver: U1.25 (SWDIO_25)
+    tr_ns: *id004
+    tr_eff_ns: 1.0
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml rp2040 (部品 YAML なし): tr 仮定: RP2040 GPIO / QSPI は slew fast 設定可、tr の規定は未確認 (3.3 V 8 mA 駆動・負荷 10 pF で 1〜2 ns の速い側) / f 仮定: QSPI の SCLK 上限 (システムクロック 133 MHz、2 分周なら 66 MHz) (速い側 133
+      MHz)'
+    certainty: 仮
+  /USB_DM:
+    driver: U1.46 (USB_DM_46)
+    tr_ns: &id006
+      value: 4.0
+      basis: assumed
+      reason: USB 2.0 規格の Full-Speed の立ち上がり 4〜20 ns (7.1.1.1 節、ページ未確認)
+      calc: 範囲の速い側 4 ns
+    tr_eff_ns: 4.0
+    f_max_mhz: &id007
+      value: 6
+      basis: assumed
+      reason: 12 Mbps の基本波
+      calc: 12 / 2 = 6 MHz
+    series_r: null
+    source: 'families.yaml usb_fs: tr 仮定: USB 2.0 規格の Full-Speed の立ち上がり 4〜20 ns (7.1.1.1 節、ページ未確認) (範囲の速い側 4 ns) / f 仮定: 12 Mbps の基本波 (12 / 2 = 6 MHz)'
+    certainty: 仮
+  /USB_DN:
+    driver: '-'
+    tr_ns: *id006
+    tr_eff_ns: 4.0
+    f_max_mhz: *id007
+    series_r: null
+    source: 'families.yaml usb_fs: tr 仮定: USB 2.0 規格の Full-Speed の立ち上がり 4〜20 ns (7.1.1.1 節、ページ未確認) (範囲の速い側 4 ns) / f 仮定: 12 Mbps の基本波 (12 / 2 = 6 MHz)'
+    certainty: 仮
+  /USB_DN_C:
+    driver: '-'
+    tr_ns: *id006
+    tr_eff_ns: 4.0
+    f_max_mhz: *id007
+    series_r: null
+    source: 'families.yaml usb_fs: tr 仮定: USB 2.0 規格の Full-Speed の立ち上がり 4〜20 ns (7.1.1.1 節、ページ未確認) (範囲の速い側 4 ns) / f 仮定: 12 Mbps の基本波 (12 / 2 = 6 MHz)'
+    certainty: 仮
+  /USB_DP:
+    driver: '-'
+    tr_ns: *id006
+    tr_eff_ns: 4.0
+    f_max_mhz: *id007
+    series_r: null
+    source: 'families.yaml usb_fs: tr 仮定: USB 2.0 規格の Full-Speed の立ち上がり 4〜20 ns (7.1.1.1 節、ページ未確認) (範囲の速い側 4 ns) / f 仮定: 12 Mbps の基本波 (12 / 2 = 6 MHz)'
+    certainty: 仮
+  /USB_DP_C:
+    driver: '-'
+    tr_ns: *id006
+    tr_eff_ns: 4.0
+    f_max_mhz: *id007
+    series_r: null
+    source: 'families.yaml usb_fs: tr 仮定: USB 2.0 規格の Full-Speed の立ち上がり 4〜20 ns (7.1.1.1 節、ページ未確認) (範囲の速い側 4 ns) / f 仮定: 12 Mbps の基本波 (12 / 2 = 6 MHz)'
+    certainty: 仮
+  /USB_DP_R:
+    driver: U1.47 (USB_DP_47)
+    tr_ns: *id006
+    tr_eff_ns: 4.0
+    f_max_mhz: *id007
+    series_r: null
+    source: 'families.yaml usb_fs: tr 仮定: USB 2.0 規格の Full-Speed の立ち上がり 4〜20 ns (7.1.1.1 節、ページ未確認) (範囲の速い側 4 ns) / f 仮定: 12 Mbps の基本波 (12 / 2 = 6 MHz)'
+    certainty: 仮
+  /XIN:
+    driver: Y1.1 (1_1)
+    tr_ns: &id008
+      value: 20
+      basis: assumed
+      reason: 水晶発振 (12 MHz 前後) の波形は正弦波に近い
+      calc: tr ≈ 0.25 × 周期 = 0.25 × 83 ns ≈ 20 ns
+    tr_eff_ns: 20.0
+    f_max_mhz: &id009
+      value: 12
+      basis: assumed
+      reason: このリポジトリの基板の水晶は 12 MHz
+      calc: '-'
+    series_r: null
+    source: 'families.yaml crystal: tr 仮定: 水晶発振 (12 MHz 前後) の波形は正弦波に近い (tr ≈ 0.25 × 周期 = 0.25 × 83 ns ≈ 20 ns) / f 仮定: このリポジトリの基板の水晶は 12 MHz (-)'
+    certainty: 仮
+  /XOUT:
+    driver: U1.21 (XOUT_21)
+    tr_ns: *id008
+    tr_eff_ns: 20.0
+    f_max_mhz: *id009
+    series_r: null
+    source: 'families.yaml crystal: tr 仮定: 水晶発振 (12 MHz 前後) の波形は正弦波に近い (tr ≈ 0.25 × 周期 = 0.25 × 83 ns ≈ 20 ns) / f 仮定: このリポジトリの基板の水晶は 12 MHz (-)'
+    certainty: 仮
+  /XTAL_O:
+    driver: Y1.3 (3_3)
+    tr_ns: *id008
+    tr_eff_ns: 20.0
+    f_max_mhz: *id009
+    series_r: null
+    source: 'families.yaml crystal: tr 仮定: 水晶発振 (12 MHz 前後) の波形は正弦波に近い (tr ≈ 0.25 × 周期 = 0.25 × 83 ns ≈ 20 ns) / f 仮定: このリポジトリの基板の水晶は 12 MHz (-)'
+    certainty: 仮

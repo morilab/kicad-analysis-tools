@@ -1,0 +1,120 @@
+{
+ "_doc": "コネクタの嵌合方向と相手 (plug) の占有。match は footprint の lib_id に対する正規表現 (または lcsc: LCSC 番号)。dir は footprint ローカル座標 (y 下向き) の嵌合方向 = plug が出ていく向き。front は本体前面のローカル座標 (dir 方向の値)。省略時は courtyard の dir 側の辺 - 0.25 mm。plug_len: 前面から外へ plug + 曲げで占める長さ、plug_w: その幅。max_inset: 前面が基板端からこれ以上内側だと plug (overmold 等) が基板や部品に当たる。entry=top は上から挿す (plug の外形 + finger 余白 margin に他部品が無いこと)。値は各データシートの代表値 (2026-10-09 時点、要確認のものは note に書く)。land (メーカー推奨ランド: pad_w/pad_l/pitch/row_gap/peg_hole/peg_pitch/peg_d/tail_w と公差、source) と coplanarity_mm は kreview の P31_connector_land / P32_paste_vs_coplanarity が使う (2026-10-16)",
+ "connectors": [
+  {
+   "match": "^Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12$",
+   "entry": "side",
+   "dir": [
+    0,
+    1
+   ],
+   "front": 3.65,
+   "plug_len": 15.0,
+   "plug_w": 12.4,
+   "max_inset": 0.5,
+   "note": "USB-C plug overmold は 12.35 x 6.5 mm 程度で基板上面より下に約 1.6 mm はみ出す。前面は基板端から 0.5 mm 以内 (はみ出しは可)"
+  },
+  {
+   "match": "^Connector_USB:USB_C_Receptacle",
+   "entry": "side",
+   "dir": [
+    0,
+    1
+   ],
+   "plug_len": 15.0,
+   "plug_w": 12.4,
+   "max_inset": 0.5,
+   "note": "KiCad 標準の USB-C receptacle は開口が +y。個別 footprint で前面位置を確認すること"
+  },
+  {
+   "match": "^lcsc:TF-SMD_TF-01A$",
+   "entry": "side",
+   "dir": [
+    0,
+    1
+   ],
+   "plug_len": 4.0,
+   "plug_w": 13.0,
+   "max_inset": 1.0,
+   "note": "microSD push-push。カード (11 x 15 mm) は前面から約 2-3 mm 出る、指で押すので前面は基板端近く"
+  },
+  {
+   "match": "lcsc:C722761",
+   "entry": "top",
+   "margin": 1.5,
+   "plug_outline": [
+    6.0,
+    4.5
+   ],
+   "plug_h": 6.0,
+   "note": "CAX PH2.0-2P-LT (LCSC C722761) は上挿し (Surface Mount, Vertical)。相手 PHR-2 は 6.0 x 4.5 x 6.0H、電線は上へ出る。ロックを押す指の余白 1.5 mm"
+  },
+  {
+   "match": "^lcsc:CONN-SMD_PH2.0-1X2PW$",
+   "entry": "top",
+   "margin": 1.5,
+   "plug_outline": [
+    6.0,
+    4.5
+   ],
+   "plug_h": 6.0,
+   "note": "easyeda2kicad の PH2.0 SMD (C722761 で使用)。LCSC の分類は Vertical (上挿し)"
+  },
+  {
+   "match": "^Connector_PinHeader_2\\.54mm:PinHeader_1x\\d+_P2\\.54mm_Vertical$",
+   "entry": "top",
+   "margin": 0.5,
+   "note": "ピンヘッダ。相手は 2.54 mm ソケット / Dupont (外形はほぼ本体と同じ)"
+  },
+  {
+   "match": "^Connector_PinSocket_2\\.54mm:PinSocket_1x\\d+_P2\\.54mm_Vertical$",
+   "entry": "top",
+   "margin": 0.5,
+   "note": "ピンソケット。載せ物 (module) の外形は別途 --reserve や User 層で示すこと"
+  },
+  {
+   "match": "Molex_87832-1420",
+   "entry": "top",
+   "margin": 0.5,
+   "plug_outline": [
+    16.65,
+    6.3
+   ],
+   "plug_h": 9.0,
+   "note": "Molex 87832-1420 (Milli-Grid 2x7 2.00mm シュラウド、SMT 縦、Xilinx JTAG 14 pin)。相手は 14 pin 2mm リボン (IDC) でシュラウドの内側に入り、リボンは上へ出る。外形はハウジング 16.65 x 6.30 (Molex SD-87832-0001)。usb-jtag-ft2232h rev0.2 で追加 (2026-10-09)",
+   "land": {
+    "pad_w": 1.0,
+    "pad_l": 2.75,
+    "pitch": 2.0,
+    "row_gap": 1.5,
+    "peg_hole": 1.0,
+    "peg_hole_tol": 0.05,
+    "peg_pitch": 10.0,
+    "peg_d": 0.85,
+    "peg_d_tol": 0.08,
+    "tail_w": 0.5,
+    "source": "Molex SD-87832-0001 rev C の推奨ランド・位置決めピン https://datasheet.octopart.com/87832-1420-Molex-datasheet-136949551.pdf (2026-10-16 確認、kreview P31)"
+   },
+   "coplanarity_mm": 0.15
+  },
+  {
+   "match": "^Connector_JST:JST_SH_SM\\d+B-SRSS-TB_1x\\d+-1MP_P1\\.00mm_Horizontal$",
+   "entry": "side",
+   "dir": [
+    0,
+    1
+   ],
+   "front": 2.575,
+   "plug_len": 8.0,
+   "plug_w": 6.0,
+   "max_inset": 1.0,
+   "note": "JST SH 横型 (Qwiic など)。開口は +y (MP 側)。相手 SHR-xxV-S は約 (n+2) x 4.25 mm、電線の曲げ込みで前面から 8 mm を見込む。plug は基板面より下に出ない。usb-jtag-ft2232h rev0.2 で追加 (2026-10-09、寸法は JST SH カタログの代表値、要確認)"
+  },
+  {
+   "match": "^Connector_PinHeader_2\\.54mm:PinHeader_2x\\d+_P2\\.54mm_Vertical$",
+   "entry": "top",
+   "margin": 0.5,
+   "note": "2 列ピンヘッダ。相手は 2.54 mm 2 列ソケット / Dupont / IDC (外形はほぼ本体と同じ)"
+  }
+ ]
+}

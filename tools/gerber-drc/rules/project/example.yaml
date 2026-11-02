@@ -1,0 +1,11 @@
+# プロジェクト固有ルールのサンプル。実物は各プロジェクト dir の gerber_drc_rules.yaml (2026-10-14 決定)。gerber_drc.py <project_dir> が自動で読む。
+file: {layer: project, name: example, extends: [user/morilab]}
+rules:
+  - id: project.stud_hole_d2
+    check: hole_diameter_set     # スタッド穴は全部 Φ2
+    scope: {hole: npth, footprints: ["MountingHole:*", "H*"]}
+    value: {allowed: [2.0], tol: 0.05}
+    severity: error
+    backend: both                # .kicad_dru: footprint 条件 + hole_size min/max 2.0 / gerber-drc: NPTH 径の集合
+  - {id: edge.copper_clearance_vcut, enabled: true}   # 下位層ルールの上書き例 (V-cut パネル)
+  - {id: silk.min_text_height, value: 0.8, note: "緩める上書きの例 (許可、gerber_drc の notes / .kicad_dru のコメントに警告が出る)"}

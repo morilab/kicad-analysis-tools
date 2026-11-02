@@ -1,0 +1,15 @@
+# pitfall-4l rev0.1 (試験基板担当作成、発注しない) の製造条件。項目名・選択肢は JLCPCB 注文画面のまま (core/boardspec.py)
+# 試験基板の expected.yaml (stackup: basis assumed、JLC04161H-7628 相当) に合わせる。
+board: pitfall-4l
+rev: "0.1"
+manufacturer: JLCPCB
+order:
+  Base Material:       {value: FR-4, basis: design, from: "pitfall-4l README (JLCPCB 標準を仮定)"}
+  Layers:              {value: 4, basis: board, from: ".kicad_pcb の銅層 F.Cu / In1.Cu / In2.Cu / B.Cu"}
+  PCB Thickness:       {value: 1.6, basis: board, from: ".kicad_pcb (thickness 1.6)、README 1.6 mm"}
+  Outer Copper Weight: {value: "1 oz", basis: design, from: "README『外層 1 oz』、expected.yaml stackup F.Cu/B.Cu 35 µm"}
+  Inner Copper Weight: {value: "0.5 oz", basis: design, from: "expected.yaml stackup In1/In2 15.2 µm"}
+  Specify Stackup:     {value: "Yes", basis: assumed, reason: "expected.yaml は JLC04161H-7628 相当を仮定 (発注しない基板)", calc: "Specify Stackup = Yes、Layer Stackup = JLC04161H-7628 を選んだとする"}
+  Layer Stackup:       {value: JLC04161H-7628, basis: assumed, reason: "expected.yaml stackup (プリプレグ 0.2104 / コア 1.065 mm)", calc: "JLC 公開 stackup 表の JLC04161H-7628"}
+  Material Type:       {value: "FR4-Standard TG 135-140", basis: assumed, reason: "未定 (発注しない)。熱計算は FR4 代表値", calc: "JLC 注文画面の既定値を選んだと仮定"}
+  Surface Finish:      {value: "HASL(with lead)", basis: assumed, reason: "未定。計算に使わない", calc: "JLC 注文画面の既定値を選んだと仮定"}

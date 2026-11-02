@@ -1,0 +1,24 @@
+# CL05A475MP5NRNC (Samsung 4.7 µF ±20% 10 V X5R 0402)。熱データなし (PDN 用のコンデンサモデル)。2026-10-14 PDN 担当
+# Samsung の部品ページ (product.samsungsem.com) は box から TLS で切断 (2026-10-14)。DC バイアス・ESR・ESL は Murata 同等品で代用 (下記 substitute)。
+# 使用箇所 (usb-jtag-ft2232h): C14/C15/C3 に加え、9314e2c (案D) で +1V8 VCORE に C23 (U1 pin12、C6 の横) / C24 (pin37、C7 の右下) / C25 (pin64、C8 の左) を追加。部品は基板の LCSC 属性から自動で引かれる (案件側の設定は不要)
+lcsc: C23733
+mpn: CL05A475MP5NRNC
+maker: Samsung Electro-Mechanics
+package: 0402 (1005)
+datasheet: {title: "Multi-layer Ceramic Capacitor SPECIFICATION CL05A475MP5NRNC", doc: "Samsung spec", rev: "未照合",
+            url: "https://mm.digikey.com/Volume0/opasdata/d220001/medias/docus/863/CL05A475MP5NRNC_Spec.pdf (定格の確認は検索結果の抜粋: 4.7 µF ±20% 10 V X5R 0402、厚さ 0.5 mm)"}
+capacitor:
+  substitute: {mpn: GRM155R61A475MEAA, maker: Murata, why: "同サイズ 0402・4.7 µF ±20%・10 V・X5R。Samsung 公式の特性が取得できないための代用 (2026-10-14 作者 指示 ①)"}
+  c_nom: {value: 4.7e-6, basis: datasheet, src: {page: 1, table: "1. Model / 2. Description", item: "4.7 µF ±20%、X5R、10 V、0402、厚さ 0.50±0.15 mm (検索結果の抜粋で確認)"}}
+  rated_v: {value: 10, basis: datasheet, src: {page: 1, table: "2. Description", item: "Rated Voltage 10 V"}}
+  dc_bias:                       # [直流電圧 V, 公称に対する容量比]。間は線形補間。代用品のグラフを画素から読み取り (ds/murata/digitize.py)
+    value: [[0, 1.0], [1.0, 0.927], [1.8, 0.796], [2.0, 0.762], [3.0, 0.593], [3.3, 0.541], [4.0, 0.451], [5.0, 0.35], [6.0, 0.287], [8.0, 0.208], [10.0, 0.164]]
+    basis: datasheet
+    src: {page: 3, table: "Characteristic Data: DC bias characteristics (25 ℃、AC 1 V)", item: "代用品 GRM155R61A475MEAA の C-DC bias capchange 曲線を画素から読み取り (読み取り誤差 ±2% 程度)", doc: "Murata Product Search Data Sheet GRM155R61A475MEAA# (Farnell 転載 https://www.farnell.com/datasheets/3159049.pdf、Last updated 10/11/2020)"}
+  model:                         # 周波数特性 (ESR・ESL は SPICE モデルに含まれる)。DC バイアスの比をモデル内の C 素子すべてに掛ける
+    value: models/GRM155R61A475MEAA.mod
+    basis: datasheet
+    src: {page: 1, table: "Murata SPICE Model (netlist) GRM v78", item: "GRM155R61A475MEAA.SUBCKT (25 ℃、DC 0 V、小信号、100 Hz〜6 GHz)。代用"}
+  esr: {value: 0.0108, basis: calc, from: "代用品 SPICE モデルの自己共振 3.54 MHz での |Z| (参考。解析は SPICE モデルそのものを使う)"}
+  esl: {value: 2.12e-10, basis: calc, from: "代用品 SPICE モデルの 300 MHz での Im(Z)/ω (参考。測定治具分を除いた部品単体、実装のパッド〜ビアは基板から抽出)"}
+  c_small_signal_1khz: {value: 3.7e-06, basis: calc, from: "代用品 SPICE モデルの 1 kHz の容量 (参考)"}

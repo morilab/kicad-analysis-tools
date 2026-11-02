@@ -1,0 +1,110 @@
+# FT2232HL (LQFP-64 10x10、露出パッドなし)
+lcsc: C27882
+mpn: FT2232HL-REEL
+maker: FTDI
+package: LQFP-64 10x10 mm 0.5 mm pitch
+datasheet: {title: "FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet", doc: "FT_000061", rev: "Version 2.21",
+            url: "https://ftdichip.com/wp-content/uploads/2020/07/DS_FT2232H.pdf (box からは取得不可。同版を https://www.datasheetq.com/es/pdf-html/375242/FTDI/48page/FT2232H.html で閲覧)"}
+tj_max:
+  value: 125
+  basis: assumed
+  reason: "データシートに Tj 上限の記載なし (p.48 の表は周囲 -40〜85 ℃、絶対最大定格は保存 -65〜150 ℃)。一般的な CMOS IC の Tj 上限 125 ℃ を採用"
+  calc: "Tj上限 = 125 ℃ (値をそのまま置いた。周囲 85 ℃ 上限 + 自己発熱 約 40 K の余地と整合)"
+theta:
+  jb:
+    value: 30
+    basis: assumed
+    reason: "データシートに熱抵抗の記載なし。LQFP-64 10x10 (露出パッドなし) の JEDEC 2s2p の θJB は他社データシートで 25〜35 ℃/W"
+    calc: "θJB = (25 + 35) / 2 = 30 ℃/W。±5 ℃/W の差で Tj は ±5 × 0.726 W ≈ ±3.6 ℃ (上面経路があるので実際はやや小さい)"
+  jc_top:
+    value: 12
+    basis: assumed
+    reason: "同上。LQFP-64 10x10 の θJC(上) は 10〜15 ℃/W"
+    calc: "θJC(上) = 12 ℃/W (範囲 10〜15 の中央付近)。上面経路 G = 1/(θJC + 1/(h × A上面))、h = 15 W/m²K (対流 8 + 放射 7 の仮定)"
+  ja: {value: null, checked: "目次・8 章 Package Parameters (熱抵抗の表なし)"}
+  jc_bottom: {value: null, checked: "同上"}
+supply:                          # 消費電流 (typ / max)。案件の thermal.yaml はこれを写して使う
+  icore:
+    typ: {value: 0.070, basis: datasheet, src: {page: 48, table: "Table 5.2 Operating Voltage and Current", item: "Icc1 Core Operating Supply Current 標準 70 mA"}}
+    max: {value: 0.150, basis: datasheet, src: {page: 48, table: "Table 5.2 Operating Voltage and Current", item: "Icc1 の最大は記載なし → Ireg Regulator Current 最大 150 mA を使う"}}
+  iccphy:
+    typ: {value: 0.030, basis: datasheet, src: {page: 50, table: "Table 5.4 PHY Operating Voltage and Current", item: "Iccphy 標準 30 mA (HS 480 MHz)"}}
+    max: {value: 0.060, basis: datasheet, src: {page: 50, table: "Table 5.4 PHY Operating Voltage and Current", item: "Iccphy 最大 60 mA (HS 480 MHz)"}}
+exposed_pad:
+  value: false
+  basis: datasheet
+  src: {page: 60, table: "8 Package Parameters (FT2232HL LQFP-64)", item: "LQFP-64 は露出パッドなし (ページは同版の目次からの推定、未確認)"}
+tab: {value: false, basis: datasheet, src: {page: 60, table: "8 Package Parameters", item: "タブなし"}}
+heat_path:
+  pads: all
+  why: {value: "all", basis: assumed, reason: "露出パッドが無いので熱は 64 本のリードから基板へ。リードごとの差は無視", calc: "各 pad の枝 G_i = (1/θJB) × A_i / ΣA"}
+extracted: {by: "Web の HTML 表示を目視 (AI)", date: 2026-10-14, checked_by: null}
+# ピンごとの電流と許容電圧 (IR ドロップ用、2026-10-14 IR ドロップ担当追記)。正 = 部品へ流れ込む [A]
+# 電流は supply (p.48 / p.50) をピンに配分 (配分は仮定)。VCCIO 電流はデータシートに記載なし → 案件 review.toml の値。
+# 許容電圧は FT2232H DS Version 2.21 Table 5.2 (p.48) / 5.4 (p.50) (https://www.datasheetq.com/es/pdf-html/375242/FTDI/48page/FT2232H.html の同版 HTML 表示で確認、2026-10-14。ページはその表示の番号)
+pins:
+  "50":
+    name: VREGIN
+    net_role: regulator_in        # 内蔵 1.8 V レギュレータの入力。電流 = +1V8 の負荷の和 (irdrop が自動で足す)
+    v_range:
+      kind: recommended
+      min: {value: 3.0, basis: datasheet, src: {page: 48, table: "Table 5.2 Operating Voltage and Current (except PHY)", item: "VREGIN 最小 3.00 V"}}
+      max: {value: 3.6, basis: datasheet, src: {page: 48, table: "Table 5.2 Operating Voltage and Current (except PHY)", item: "VREGIN 最大 3.60 V"}}
+  "49":
+    name: VREGOUT
+    net_role: regulator_out
+    v_out: {value: 1.8, basis: datasheet, src: {page: 48, table: "Table 5.2 Operating Voltage and Current (except PHY)", item: "VREGOUT 標準 1.80 V (最小 1.71 / 最大 1.89 V)"}}
+    zout:
+      r: {value: 0.1, basis: assumed, reason: "データシート (DS_FT2232H) に内蔵 1.8 V レギュレータの出力インピーダンス・PSRR・負荷過渡のグラフも数値も無い (2026-10-14 再確認、FTDI 公式 PDF は取得できず)。VREGOUT 1.71〜1.89 V (p.48) の幅を Ireg 0〜150 mA で使い切ると 1.2 Ω だが、実際の負荷変動はずっと小さいと見て 0.1 Ω", calc: "0.1 Ω (感度を報告で示す)"}
+      f_bw: {value: 1.0e5, basis: assumed, reason: "帯域の記載なし。一般的な内蔵 LDO (AP7361C の当てはめ Ro/(2πLo) ≈ 230 kHz と同程度以下)。VREGIN の ΔI の帯域制限 (pdn ④) にも使う", calc: "100 kHz"}
+    v_out_min: {value: 1.71, basis: datasheet, src: {page: 48, table: "Table 5.2 Operating Voltage and Current (except PHY)", item: "VREGOUT 最小 1.71 V"}}
+    v_out_max: {value: 1.89, basis: datasheet, src: {page: 48, table: "Table 5.2 Operating Voltage and Current (except PHY)", item: "VREGOUT 最大 1.89 V"}}
+    decoupling:                  # 2026-10-14 取り込み: usb-jtag-ft2232h review/pdn-1v8-rev0.2/C27882-vregout.yaml (0f23a49)。FT2232H DS FT_000061 v2.21
+      bulk_min: {value: 3.3e-6, basis: datasheet, src: {page: 10, table: "Table 3.1 Power and Ground", item: "49 VREGOUT: Connect to VCORE with 3.3uF filter capacitor."}}
+      bulk_min_note: {value: 3.3e-6, basis: datasheet, src: {page: 51, table: "6.1 USB Bus Powered Configuration (Figure 6.1 の説明文)", item: "This requires a minimum of a 3.3uF filter capacitor."}}
+      example_circuit: {value: "VREGOUT に 3.3uF + 100nF、VCORE 3 本 (12/37/64) に各 100nF", basis: datasheet, src: {page: 51, table: "Figure 6.1 Bus Powered Configuration Example 1 (p.53 Figure 6.3 も同じ)", item: "VREGOUT 3.3uF・100nF、VCORE 100nF × 3"}}
+      esr_range: {value: null, checked: "p.10 Table 3.1、p.48 Table 5.2、p.51-54 Figure 6.1-6.4 (ESR 範囲の記載なし)"}
+    dropout: {value: null, checked: "p.48 Table 5.2 (VREGIN 最小 3.00 V のみ)"}
+  "12": &vcore
+    name: VCORE
+    net_role: power_in
+    current:
+      typ: {value: 0.02333, basis: assumed, reason: "Icc1 標準 70 mA (p.48 Table 5.2) を VCORE 3 本 (12/37/64) に等分", calc: "70 mA / 3 = 23.3 mA"}
+      max: {value: 0.05, basis: assumed, reason: "Ireg 最大 150 mA (p.48 Table 5.2、Icc1 最大の代用) を 3 本に等分", calc: "150 mA / 3 = 50 mA"}
+    v_range:
+      kind: recommended
+      min: {value: 1.62, basis: datasheet, src: {page: 48, table: "Table 5.2 Operating Voltage and Current (except PHY)", item: "VCORE 最小 1.62 V"}}
+      max: {value: 1.98, basis: datasheet, src: {page: 48, table: "Table 5.2 Operating Voltage and Current (except PHY)", item: "VCORE 最大 1.98 V"}}
+  "37": *vcore
+  "64": *vcore
+  "4":
+    name: VPHY
+    net_role: power_in
+    current:
+      typ: {value: 0.025, basis: assumed, reason: "Iccphy 標準 30 mA (p.50 Table 5.4) を VPHY 25 / VPLL 5 に配分 (PLL は小さいと仮定)", calc: "30 mA × 5/6 = 25 mA"}
+      max: {value: 0.050, basis: assumed, reason: "Iccphy 最大 60 mA (p.50 Table 5.4) を同じ比で配分", calc: "60 mA × 5/6 = 50 mA"}
+    v_range: &v33
+      kind: recommended
+      min: {value: 3.0, basis: datasheet, src: {page: 50, table: "Table 5.4 PHY Operating Voltage and Current", item: "VPHY, VPLL 最小 3.0 V"}}
+      max: {value: 3.6, basis: datasheet, src: {page: 50, table: "Table 5.4 PHY Operating Voltage and Current", item: "VPHY, VPLL 最大 3.6 V"}}
+  "9":
+    name: VPLL
+    net_role: power_in
+    current:
+      typ: {value: 0.005, basis: assumed, reason: "Iccphy 標準 30 mA の 1/6", calc: "30 mA / 6 = 5 mA"}
+      max: {value: 0.010, basis: assumed, reason: "Iccphy 最大 60 mA の 1/6", calc: "60 mA / 6 = 10 mA"}
+    v_range: *v33
+  "14": &vccio
+    name: VCCIO
+    net_role: power_in
+    current:
+      typ: {value: 0.001, basis: assumed, reason: "VCCIO の電流はデータシートに記載なし。I/O 静止 + 低速切替で 5 本合計 5 mA と仮定し等分", calc: "5 mA / 5 = 1 mA"}
+      max: {value: 0.002, basis: assumed, reason: "usb-jtag-ft2232h review.toml の U1 VCCIO 約 10 mA (案件の見積もり) を 5 本 (14/20/31/42/56) に等分", calc: "10 mA / 5 = 2 mA"}
+    v_range:
+      kind: recommended
+      min: {value: 2.97, basis: datasheet, src: {page: 48, table: "Table 5.2 Operating Voltage and Current (except PHY)", item: "VCCIO 最小 2.97 V"}}
+      max: {value: 3.63, basis: datasheet, src: {page: 48, table: "Table 5.2 Operating Voltage and Current (except PHY)", item: "VCCIO 最大 3.63 V"}}
+  "20": *vccio
+  "31": *vccio
+  "42": *vccio
+  "56": *vccio

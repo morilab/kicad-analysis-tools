@@ -1,0 +1,64 @@
+# AP7361C-33E-13 (SOT-223)。値オブジェクトの書き方は thermal/parts.py の先頭 (basis 必須)
+lcsc: C500795
+mpn: AP7361C-33E-13
+maker: Diodes Incorporated
+package: SOT-223
+datasheet: {title: "AP7361C 1A Low Dropout Linear Regulator", doc: "DS37274", rev: "Rev. 5-2", url: "https://www.diodes.com/assets/Datasheets/AP7361C.pdf"}
+tj_max:
+  value: 150
+  basis: datasheet
+  src: {page: 4, table: "Absolute Maximum Ratings", item: "TJ Operating Junction Temperature Range -40 to +150 °C"}
+theta:
+  ja:
+    value: 110
+    basis: datasheet
+    src: {page: 6, table: "Electrical Characteristics (Cont.) / Note 9", item: "θJA SOT223 110 °C/W typ。Note 9: FR-4 基板、最小推奨パッド (基板寸法・銅厚の記載なし)"}
+  jc_bottom:                      # 接合 → タブ
+    value: 15
+    basis: assumed
+    reason: "データシートに θJC の記載なし (p.6 の熱抵抗は θJA のみ)。SOT-223 の LDO の θJC(タブ) は他社データシートで 10〜20 ℃/W の範囲なので中央を採用"
+    calc: "θJC(タブ) = (10 + 20) / 2 = 15 ℃/W (範囲の中央)。±5 ℃/W の差で Tj は ±5 × 0.535 W = ±2.7 ℃ 変わる"
+  jc_top: {value: null, checked: "p.6 熱抵抗の欄"}
+  jb: {value: null, checked: "p.6 熱抵抗の欄"}
+  psi_jb: {value: null, checked: "p.6 熱抵抗の欄"}
+iq:
+  typ: {value: 0.00006, basis: datasheet, src: {page: 5, table: "Electrical Characteristics", item: "IQ Input Quiescent Current 標準 60 µA (Enabled, IOUT = 0A)"}}
+  max: {value: 0.00008, basis: datasheet, src: {page: 5, table: "Electrical Characteristics", item: "IQ Input Quiescent Current 最大 80 µA (Enabled, IOUT = 0A)"}}
+exposed_pad:
+  value: false
+  basis: datasheet
+  src: {page: 19, table: "Package Outline Dimensions SOT223", item: "露出パッドなし。タブ (幅 b1 = 3.00 mm typ) は 2 番ピン = GND とつながる"}
+tab:
+  value: true
+  basis: datasheet
+  src: {page: 19, table: "Package Outline Dimensions SOT223", item: "タブ幅 b1 2.90〜3.10 mm、本体 D 6.50 × E 3.50 mm、高さ A 1.60 mm typ"}
+heat_path:
+  pads: all          # 全 pad (タブ + 1〜3 番) に pad 面積比で配る。タブが面積の約 63%
+  why: {value: "all", basis: assumed, reason: "θJC(タブ) は接合からタブまでの値だが、リード (1〜3 番) からも基板へ流れるため pad 全部に面積比で配る", calc: "各 pad の枝 G_i = (1/θ) × A_i / ΣA (A_i は .kicad_pcb の pad 面積)"}
+pins:                             # ピンごとの電流 (IR ドロップ用)。電流値は案件側 (負荷で決まる) で上書きする
+  "1":
+    name: IN
+    net_role: power_in
+    v_range:
+      kind: recommended
+      min: {value: 2.2, basis: datasheet, src: {page: 4, table: "Recommended Operating Conditions", item: "VIN Input Voltage 最小 2.2 V"}}
+      max: {value: 6.0, basis: datasheet, src: {page: 4, table: "Recommended Operating Conditions", item: "VIN Input Voltage 最大 6.0 V (絶対最大 6.5 V = 同ページ Absolute Maximum Ratings)"}}
+  "2": {name: GND, net_role: ground}
+  "3":
+    name: OUT
+    net_role: power_out
+    v_out_accuracy: {value: 0.01, basis: datasheet, src: {page: 5, table: "Electrical Characteristics", item: "Output Voltage Accuracy ±1% (TA = +25 ℃、IOUT = 100 mA、1.5 V ≤ VOUT ≤ 3.3 V)"}}
+    load_regulation: {value: 0.01, basis: datasheet, src: {page: 5, table: "Electrical Characteristics", item: "Load Regulation ±1.0% 最大 (IOUT 1 mA〜1 A、1.2 V < VOUT ≤ 3.3 V)"}}
+    v_out_tempco_ppm: {value: 100, basis: datasheet, src: {page: 5, table: "Electrical Characteristics", item: "Output Voltage Temperature Coefficient ±100 ppm/℃ 標準 (-40〜+85 ℃)"}}
+    v_range:
+      kind: absolute
+      max: {value: "VIN+0.3", basis: datasheet, src: {page: 4, table: "Absolute Maximum Ratings", item: "OUT, ADJ, EN Voltage 最大 VIN + 0.3 V"}}
+extracted: {by: "pdftotext -layout + 目視 (AI)", date: 2026-10-14, checked_by: null}
+zout:                              # PDN 用の出力インピーダンス Z = Ro + jωLo
+  # 負荷過渡応答 (p.7 中段右: VIN 4.3 V、VOUT 3.3 V、CIN = COUT = 4.7 µF、IOUT 100→500 mA、20 mV/div、200 µs/div) の波形を画素から読み取り、
+  # 「Zo ∥ COUT のステップ応答 + 遅い段 A(1 − e^(−t/τ))」を当てはめた (ds/apimg/fit_ap.py)。読み取り: 立ち上がり 約 8 µs、谷 −13.6 mV、その後 +8.8 mV に落ち着く
+  # 当てはめ: COUT 4.7 µF で Ro 50 mΩ・Lo 35 nH、COUT を DC バイアスで 55% とすると Ro 50 mΩ・Lo 20 nH (rms 0.46 mV)。L は大きい方 (安全側) を採る
+  # PSRR (p.5: 75 dB @1 kHz、55 dB @10 kHz) は入力→出力の伝達で、出力インピーダンスには使わない
+  r: {value: 0.050, basis: datasheet, src: {page: 7, table: "Performance Characteristics: Load Transient Response (VOUT = 3.3 V, IOUT = 100 mA to 500 mA)", item: "波形の当てはめ Ro (谷の深さ 13.6 mV / 0.4 A = 34 mΩ が下限の目安)"}}
+  l: {value: 35.0e-9, basis: datasheet, src: {page: 7, table: "Performance Characteristics: Load Transient Response (VOUT = 3.3 V, IOUT = 100 mA to 500 mA)", item: "波形の当てはめ Lo (COUT 4.7 µF 公称。DC バイアス込みなら 20 nH)"}}
+  load_regulation_note: "負荷変動 ±1% (p.5) は合否の余裕 (irdrop) で引いている。過渡波形では重い負荷で +8.8 mV 上がる (DC の出力抵抗はほぼ 0 か負)"

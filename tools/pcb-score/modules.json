@@ -1,0 +1,13 @@
+{
+  "_doc": "モジュールの実外形 (データシート) と、近くに部品を置けない領域。座標は footprint ローカル (mm, y 下向き)。body: 実際の本体外形。keepout: 部品・銅を置かない領域 (antenna など)。confusable: 同じ land pattern に載り得る別品種の外形 (取り違え時の干渉を知らせる)",
+  "modules": [
+    {"match": "^RF_Module:ESP32-S3-WROOM-1U$", "name": "ESP32-S3-WROOM-1U", "body": [-9.0, -9.6, 9.0, 9.6], "body_h": 3.2,
+     "source": "Espressif ESP32-S3-WROOM-1/1U datasheet §10.1: 1U = 18.0 x 19.2 x 3.2 mm (外部 antenna 用 U.FL/IPEX、antenna keepout 不要)",
+     "desc_forbid": ["onboard antenna", "PCB antenna"],
+     "confusable": {"name": "ESP32-S3-WROOM-1 (PCB antenna, 18 x 25.5 mm) を同じ pad 位置に載せた場合", "body": [-9.0, -15.9, 9.0, 9.6],
+                    "keepout": [-9.0, -15.9, 9.0, -9.6], "keepout_name": "PCB antenna 部"}},
+    {"match": "^RF_Module:ESP32-S3-WROOM-1$", "name": "ESP32-S3-WROOM-1", "body": [-9.0, -12.75, 9.0, 12.75], "body_h": 3.1,
+     "keepout": [-9.0, -12.75, 9.0, -6.45], "keepout_name": "PCB antenna 部 (部品・銅禁止、基板端から外へ出すのが推奨)",
+     "source": "Espressif datasheet §10.1 / §11.2: 1 = 18.0 x 25.5 x 3.1 mm、antenna 部は基板外に出すか keepout"}
+  ]
+}

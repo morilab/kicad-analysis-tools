@@ -1,0 +1,14 @@
+# 0805L010YR (Littelfuse POLY-FUSE 0805L、PTC リセッタブルヒューズ Ihold 100 mA)。熱データなし (IR ドロップの直列抵抗)。2026-10-14 IR ドロップ担当
+lcsc: C207020
+mpn: 0805L010YR
+maker: Littelfuse
+package: 0805
+datasheet: {title: "PTC Resettable Fuses 0805L Series", doc: "littelfuse_ptc_0805l", rev: "Revised: 04/01/14",
+            url: "https://www.littelfuse.com/data/en/data_sheets/littelfuse_ptc_0805l.pdf (box からは 403 → 同版を https://datasheet.octopart.com/0805L010YR-Littelfuse-datasheet-26530138.pdf で取得、pdftotext)"}
+dc_resistance:                   # irdrop の直列素子 (ネット間抵抗)。typ → typ 条件、max → worst 条件
+  typ: {value: 3.5, basis: datasheet, src: {page: 1, table: "Electrical Characteristics", item: "0805L010: R typ 3.500 Ω (初期 = はんだ付け前の標準)"}}
+  max: {value: 6.0, basis: datasheet, src: {page: 1, table: "Electrical Characteristics", item: "0805L010: R1max 6.000 Ω。定義『トリップ 1 時間後 または 260 ℃ 20 s のリフロー後 の 20 ℃ での最大』= 実装後の通常時 (トリップしていない) の最大として使う"}}
+  min: {value: 1.0, basis: datasheet, src: {page: 1, table: "Electrical Characteristics", item: "0805L010: R min 1.000 Ω (初期 = はんだ付け前の最小)"}}
+  why_max: "PTC はリフローで抵抗が上がり R min〜R1max の間に落ち着く。データシートの R1max はリフロー後の最大を含むので、実装後の通常時の最悪 = R1max 6 Ω (トリップ中の抵抗 = 数百 Ω 以上は通常動作ではないので使わない)"
+  tc_per_c: {value: null, checked: "p.1〜2 (Temperature Rerating 表は保持電流の温度ディレーティングのみ、抵抗の温度係数の記載なし)。PTC は非線形なので温度補正しない"}
+  t_ref_c: {value: 20, basis: datasheet, src: {page: 1, table: "Electrical Characteristics の注記", item: "R1max は 20 ℃ で測定"}}

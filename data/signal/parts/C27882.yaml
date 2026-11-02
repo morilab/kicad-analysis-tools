@@ -1,0 +1,25 @@
+# FT2232HL (FTDI) の出力特性。熱データは pcb-physics data/parts/C27882.yaml (同じ LCSC 番号、同じ値オブジェクトの書き方)
+lcsc: C27882
+mpn: FT2232HL-REEL
+maker: FTDI
+datasheet: {title: "FT2232H Dual High Speed USB to Multipurpose UART/FIFO IC Datasheet", doc: "FT_000061", rev: "Version 2.10",
+            url: "FTDI DS_FT2232H (ページは pdftotext の改ページで数えた)"}
+signal:
+  default:                       # ADBUS/ACBUS/BDBUS/BCBUS と EECS/EECLK/EEDATA
+    tr_ns:
+      value: 1.5
+      basis: assumed
+      reason: "データシートに出力の立ち上がり時間の規定なし (p.3 1.3 節は USB の tr が EEPROM 設定で変わるとだけ記載、p.48 で I/O の駆動 4/8/12/16 mA と slew は EEPROM 設定)。3.3 V CMOS・既定 4 mA・slew 通常"
+      calc: "tr ≈ 2.2 × R出力 × C負荷 = 2.2 × 45 Ω × 15 pF ≈ 1.5 ns (R出力 30〜60 Ω、C負荷 10〜20 pF で 0.7〜2.6 ns)"
+    f_max_mhz:
+      value: 30
+      basis: datasheet
+      src: {page: 34, table: "Table 4.3 MPSSE Signal Timings (Figure 4.7)", item: "These show timings for TCK=30MHz。MPSSE 最大 30 Mbit/s"}
+    r_out_ohm:
+      value: 45
+      basis: assumed
+      reason: "出力抵抗の規定なし。既定 4 mA 駆動の CMOS の動的出力抵抗"
+      calc: "30〜60 Ω の中央付近"
+  pins:
+    "8": {kind: usb_hs, note: "DP (USB 2.0 HS)"}
+    "7": {kind: usb_hs, note: "DM (USB 2.0 HS)"}

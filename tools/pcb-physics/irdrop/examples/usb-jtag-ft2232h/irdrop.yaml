@@ -1,0 +1,61 @@
+# usb-jtag-ft2232h rev0.2 の IR ドロップ条件 (irdrop/run.py)。値は値オブジェクト (basis 必須)、{typ:, max:} は条件ごとに選ぶ (typ → typ、worst → max)
+# 合否: 負荷ピンの降下 (行き + GND 帰り) ≤ 許容電圧余裕 × 20% (2026-10-14 作者 決定)。余裕 = 源の最低電圧 (出力精度・負荷変動を引く、同日 作者 決定) − ピンの許容最小
+criterion: {ratio: 0.20, from: "2026-10-14 作者 決定: 許容電圧余裕の 20% まで (行き + GND 帰り)"}
+temperature:                     # 銅の温度 (一様)。--tmap で熱解析の温度マップに差し替え可
+  typ: {value: 25.0, basis: design, from: "pcb-physics core/cases.py の既定 typ 周囲 25 ℃ (自己発熱は未考慮)"}
+  max: {value: 50.0, basis: design, from: "pcb-physics core/cases.py の既定 worst 周囲 50 ℃ (自己発熱は未考慮)"}
+gnd:
+  net: GND
+  ref: {ref: J1, pins: [A1, A12, B1, B12], why: "USB ホストの GND を 0 V (シールド SH は帰路に数えない)"}
+rails:                           # 解く順 (上流から)
+  VBUS:
+    source: {ref: J1, pins: [A4, A9, B4, B9]}
+    v:
+      typ: {value: 5.0, basis: design, from: "USB 2.0 VBUS 公称 5.0 V"}
+      max: {value: 4.40, basis: design, from: "review/rev0.2-power-budget.md: VBUS 最低 4.40 V (worst は最低電圧で評価)"}
+    gnd_ref: {ref: J1, pins: [A1, A12, B1, B12]}
+  +3V3:
+    source: {ref: U3, pins: ["3"]}
+    input: {ref: U3, pin: "1", net: VBUS, iq: {typ: {value: 0.00006, basis: datasheet, part: C500795, src: {page: 5, table: "Electrical Characteristics", item: "IQ 標準 60 µA"}}, max: {value: 0.00008, basis: datasheet, part: C500795, src: {page: 5, table: "Electrical Characteristics", item: "IQ 最大 80 µA"}}}, gnd_pins: ["2"]}
+    v: {value: 3.3, basis: design, from: "U3 AP7361C-33 出力公称。合否の余裕は 出力精度 ±1% + 負荷変動 ±1% を引いた 3.234 V から (部品 YAML C500795 p.5)"}
+    gnd_ref: {ref: U3, pins: ["2"]}
+  +1V8:
+    source: {ref: U1, pins: ["49"]}
+    input: {ref: U1, pin: "50", net: +3V3}
+    v: {value: 1.80, basis: datasheet, part: C27882, src: {page: 48, table: "Table 5.2", item: "VREGOUT 標準 1.80 V (1.71〜1.89 V)"}}
+    gnd_ref: {ref: U1, pins: ["1", "5", "10", "11", "15", "25", "35", "47", "51"]}
+  +3.3VA:
+    series: {ref: FB1, from_pin: "1", to_pin: "2", upstream: +3V3}
+    # 抵抗は部品 YAML data/parts/C1015.yaml の dc_resistance (GZ2012D101TF、0f23a49 で C1002 から交換。DCR 最大 0.15 Ω = LCSC/JLC 属性 (掲載カタログに D101 無し)、温度係数は仮定 0.0038/℃)
+  /+3V3_EXT:
+    series: {ref: F1, from_pin: "1", to_pin: "2", upstream: +3V3}
+    # 抵抗は部品 YAML data/parts/C207020.yaml の dc_resistance (R typ 3.5 / R1max 6.0 Ω = データシート p.1、温度補正なし)
+# 9314e2c (案D): +1V8 に C23/C24/C25 (C23733 4.7 µF、U1 pin12/37/64) を追加。コンデンサは直流電流を流さないので IR の条件は変更なし (PDN は基板から自動で拾う)
+parts:                           # 案件側のピン電流 (部品 YAML data/parts/<LCSC>.yaml の pins を上書き / 追加)。gnd: 帰りの GND ピン (等分)
+  U1:
+    gnd: ["1", "5", "10", "11", "15", "25", "35", "47", "51"]   # 13 (TEST) は除外
+  # U4 (C190271) / U5 (C129363) / U6 (C128418) のピン電流・許容電圧・GND ピンは data/parts に移した (2026-10-14)
+  R3:                            # D1 赤 LED (R3 1k 経由)。帰りは D1.1 (カソード)
+    gnd_ref_part: D1
+    gnd: ["1"]
+    pins:
+      "1":
+        current:
+          typ: {value: 0.0015, basis: design, from: "review.toml loads D1 ((3.3 − 1.8) / 1k)"}
+          max: {value: 0.0015, basis: design, from: "同上"}
+  J4: &jx
+    gnd: ["2"]
+    pins:
+      "10":
+        current:
+          typ: {value: 0.0, basis: design, from: "J4-J7 は DNP、標準では外部負荷なし"}
+          max: {value: 0.0005, basis: design, from: "2026-10-14 作者 確定: /+3V3_EXT は VREF 用、外部条件は合計 2 mA (旧仮定 10 mA を置き換え)。4 端子に等分", calc: "2 / 4 = 0.5 mA"}
+        v_range: {kind: recommended, min: {value: 3.0, basis: design, from: "2026-10-14 作者 確定: /+3V3_EXT の外部条件 最小 3.0 V (VREF 用)"}}
+  J5: *jx
+  J6: *jx
+  J7: *jx
+  U3:
+    pins:
+      "1":
+        v_range: {kind: recommended, min: {value: 3.44, basis: design, from: "review/rev0.2-power-budget.md: 3.3 V + dropout 最大 140 mV @300 mA (AP7361C DS)", calc: "3.3 + 0.14"}}
+# 未計上 (小さい): プルアップ R5-R7/R19/R34 (最大 計 約 1.5 mA、相手が L の時だけ)、U2 VBUS (µA)、Q1。合計 3 mA の review.toml 値との差は報告に記載

@@ -1,0 +1,385 @@
+# ネットごとの信号特性 (リターンパス P20/P21 の点数に使う)。形式は data/signal/README.md
+board: esp32s3-mcu-board
+generated_by: 'tools/review/signal_table.py (手で直す値は overrides: に書く。nets: は再生成で上書き)'
+defaults:
+  c_load_pf:
+    value: 10
+    basis: assumed
+    reason: 直列抵抗の後ろの負荷 (受け側の入力容量 3〜5 pF + 配線 20〜50 mm × 0.1 pF/mm)
+    calc: 5 + 5 = 10 pF
+  v_mm_per_ns:
+    value: 150
+    basis: assumed
+    reason: FR-4 マイクロストリップの伝搬速度 (実効比誘電率 3〜4)
+    calc: c / √4 = 300 / 2 = 150 mm/ns
+  hs_usb: false
+overrides: {}
+nets:
+  /CC1:
+    driver: コネクタの先 (外部)
+    tr_ns: &id001
+      value: 2.0
+      basis: assumed
+      reason: コネクタの先 (相手側のドライバ不明)。JTAG ターゲット・UART 相手の典型的な 3.3 V CMOS
+      calc: 1〜5 ns の速い側寄り
+    tr_eff_ns: 2.0
+    f_max_mhz: null
+    series_r: null
+    source: 'families.yaml external: tr 仮定: コネクタの先 (相手側のドライバ不明)。JTAG ターゲット・UART 相手の典型的な 3.3 V CMOS (1〜5 ns の速い側寄り)'
+    certainty: 仮
+  /CC2:
+    driver: コネクタの先 (外部)
+    tr_ns: *id001
+    tr_eff_ns: 2.0
+    f_max_mhz: null
+    series_r: null
+    source: 'families.yaml external: tr 仮定: コネクタの先 (相手側のドライバ不明)。JTAG ターゲット・UART 相手の典型的な 3.3 V CMOS (1〜5 ns の速い側寄り)'
+    certainty: 仮
+  /EN:
+    driver: スイッチ SW1
+    tr_ns: &id002
+      value: 10
+      basis: assumed
+      reason: スイッチ (SW*) がつながるネット。MCU 側は入力で、エッジは接点とプルアップ・ネットの容量で決まり、繰り返しもまれ
+      calc: 接点の閉じ始めは数 ns だがチャタリングの中の 1 回で、プルアップ 10 kΩ × 1 nF の RC を入れる設計が多い → 速い側を 10 ns と置く (要確認、overrides で直す)
+    tr_eff_ns: 10.0
+    f_max_mhz: &id003
+      value: 0.001
+      basis: assumed
+      reason: 人の操作
+      calc: 1 kHz 未満
+    series_r: null
+    source: 'families.yaml switch_input: tr 仮定: スイッチ (SW*) がつながるネット。MCU 側は入力で、エッジは接点とプルアップ・ネットの容量で決まり、繰り返しもまれ (接点の閉じ始めは数 ns だがチャタリングの中の 1 回で、プルアップ 10 kΩ × 1 nF の RC を入れる設計が多い → 速い側を 10 ns と置く (要確認、overrides
+      で直す)) / f 仮定: 人の操作 (1 kHz 未満)'
+    certainty: 仮
+  /IO0:
+    driver: スイッチ SW2
+    tr_ns: *id002
+    tr_eff_ns: 10.0
+    f_max_mhz: *id003
+    series_r: null
+    source: 'families.yaml switch_input: tr 仮定: スイッチ (SW*) がつながるネット。MCU 側は入力で、エッジは接点とプルアップ・ネットの容量で決まり、繰り返しもまれ (接点の閉じ始めは数 ns だがチャタリングの中の 1 回で、プルアップ 10 kΩ × 1 nF の RC を入れる設計が多い → 速い側を 10 ns と置く (要確認、overrides
+      で直す)) / f 仮定: 人の操作 (1 kHz 未満)'
+    certainty: 仮
+  /IO1:
+    driver: U1.39 (IO1_39)
+    tr_ns: &id004
+      value: 1.5
+      basis: assumed
+      reason: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし
+      calc: 負荷 10 pF で 1〜3 ns の速い側寄り
+    tr_eff_ns: 1.5
+    f_max_mhz: &id005
+      value: 80
+      basis: assumed
+      reason: SPI マスタ上限 80 MHz
+      calc: '-'
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO2:
+    driver: U1.38 (IO2_38)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO3:
+    driver: U1.15 (IO3_15)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO4:
+    driver: U1.4 (IO4_4)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO5:
+    driver: U1.5 (IO5_5)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO6:
+    driver: U1.6 (IO6_6)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO7:
+    driver: U1.7 (IO7_7)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO8:
+    driver: U1.12 (IO8_12)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO9:
+    driver: U1.17 (IO9_17)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO10:
+    driver: U1.18 (IO10_18)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO11:
+    driver: U1.19 (IO11_19)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO12:
+    driver: U1.20 (IO12_20)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO13:
+    driver: U1.21 (IO13_21)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO14:
+    driver: U1.22 (IO14_22)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO15:
+    driver: U1.8 (IO15_8)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO16:
+    driver: U1.9 (IO16_9)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO17:
+    driver: U1.10 (IO17_10)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO18:
+    driver: U1.11 (IO18_11)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO21:
+    driver: U1.23 (IO21_23)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO35:
+    driver: U1.28 (IO35_28)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO36:
+    driver: U1.29 (IO36_29)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO37:
+    driver: U1.30 (IO37_30)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO38:
+    driver: U1.31 (IO38_31)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO39:
+    driver: U1.32 (IO39_32)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO40:
+    driver: U1.33 (IO40_33)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO41:
+    driver: U1.34 (IO41_34)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO42:
+    driver: U1.35 (IO42_35)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO45:
+    driver: U1.26 (IO45_26)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO46:
+    driver: U1.16 (IO46_16)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO47:
+    driver: U1.24 (IO47_24)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /IO48:
+    driver: U1.25 (IO48_25)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /LED_A:
+    driver: U1.23 (IO21_23)
+    tr_ns: *id004
+    tr_eff_ns: 22.051
+    f_max_mhz: *id005
+    series_r:
+      ohm: 1000.0
+      path: R5 1k
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /RXD0:
+    driver: U1.36 (RXD0_36)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /TXD0:
+    driver: U1.37 (TXD0_37)
+    tr_ns: *id004
+    tr_eff_ns: 1.5
+    f_max_mhz: *id005
+    series_r: null
+    source: 'families.yaml esp32s3 (部品 YAML なし): tr 仮定: ESP32-S3 GPIO の駆動 (既定 20 mA 設定)、tr 規定なし (負荷 10 pF で 1〜3 ns の速い側寄り) / f 仮定: SPI マスタ上限 80 MHz (-)'
+    certainty: 仮
+  /USB_DN:
+    driver: U1.13 (USB_D-_13)
+    tr_ns: &id006
+      value: 4.0
+      basis: assumed
+      reason: USB 2.0 規格の Full-Speed の立ち上がり 4〜20 ns (7.1.1.1 節、ページ未確認)
+      calc: 範囲の速い側 4 ns
+    tr_eff_ns: 4.0
+    f_max_mhz: &id007
+      value: 6
+      basis: assumed
+      reason: 12 Mbps の基本波
+      calc: 12 / 2 = 6 MHz
+    series_r: null
+    source: 'families.yaml usb_fs: tr 仮定: USB 2.0 規格の Full-Speed の立ち上がり 4〜20 ns (7.1.1.1 節、ページ未確認) (範囲の速い側 4 ns) / f 仮定: 12 Mbps の基本波 (12 / 2 = 6 MHz)'
+    certainty: 仮
+  /USB_DN_C:
+    driver: '-'
+    tr_ns: *id006
+    tr_eff_ns: 4.0
+    f_max_mhz: *id007
+    series_r: null
+    source: 'families.yaml usb_fs: tr 仮定: USB 2.0 規格の Full-Speed の立ち上がり 4〜20 ns (7.1.1.1 節、ページ未確認) (範囲の速い側 4 ns) / f 仮定: 12 Mbps の基本波 (12 / 2 = 6 MHz)'
+    certainty: 仮
+  /USB_DP:
+    driver: U1.14 (USB_D+_14)
+    tr_ns: *id006
+    tr_eff_ns: 4.0
+    f_max_mhz: *id007
+    series_r: null
+    source: 'families.yaml usb_fs: tr 仮定: USB 2.0 規格の Full-Speed の立ち上がり 4〜20 ns (7.1.1.1 節、ページ未確認) (範囲の速い側 4 ns) / f 仮定: 12 Mbps の基本波 (12 / 2 = 6 MHz)'
+    certainty: 仮
+  /USB_DP_C:
+    driver: '-'
+    tr_ns: *id006
+    tr_eff_ns: 4.0
+    f_max_mhz: *id007
+    series_r: null
+    source: 'families.yaml usb_fs: tr 仮定: USB 2.0 規格の Full-Speed の立ち上がり 4〜20 ns (7.1.1.1 節、ページ未確認) (範囲の速い側 4 ns) / f 仮定: 12 Mbps の基本波 (12 / 2 = 6 MHz)'
+    certainty: 仮

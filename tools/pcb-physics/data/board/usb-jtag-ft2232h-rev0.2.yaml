@@ -1,0 +1,20 @@
+# usb-jtag-ft2232h rev0.2 の製造条件。項目名・選択肢は JLCPCB 注文画面 (PCB Specifications / High-spec Options) のまま (core/boardspec.py)
+# 作者 2026-10-14: JLC 標準 2 層 1.6 mm 1 oz。未発注のため、決まっていない項目は basis: assumed (JLC 注文画面の既定値)。
+board: usb-jtag-ft2232h
+rev: "0.2"
+manufacturer: JLCPCB
+order:
+  Base Material:       {value: FR-4, basis: design, from: "作者 2026-10-14 決定 (JLC 標準 2 層)"}
+  Layers:              {value: 2, basis: design, from: "作者 2026-10-14 決定。.kicad_pcb の銅層 F.Cu/B.Cu と一致"}
+  PCB Thickness:       {value: 1.6, basis: design, from: "作者 2026-10-14 決定。.kicad_pcb (thickness 1.6) と一致"}
+  Outer Copper Weight: {value: "1 oz", basis: design, from: "作者 2026-10-14 決定 (1 oz = 35 µm)"}
+  Inner Copper Weight: {value: null, basis: design, from: "2 層のため無し"}
+  Specify Stackup:     {value: "No", basis: design, from: "JLC 標準 2 層 (stackup 指定なし)"}
+  Layer Stackup:       {value: null, basis: design, from: "Specify Stackup = No のため無し"}
+  Material Type:       {value: "FR4-Standard TG 135-140", basis: assumed, reason: "未発注で未定。熱計算は FR4 代表値 (面内 0.81・厚さ方向 0.29 W/m·K) で材質差は見ていない", calc: "JLC 注文画面の 2 層の既定値を選んだと仮定"}
+  Surface Finish:      {value: "HASL(with lead)", basis: assumed, reason: "未発注で未定。熱・IR 計算には使わない", calc: "JLC 注文画面の既定値を選んだと仮定"}
+  Via Covering:        {value: Tented, basis: assumed, reason: "未発注で未定。熱計算のビアはめっき 18 µm の筒のみ (充填なし) で一致", calc: "JLC 注文画面の既定値を選んだと仮定"}
+  Impedance Control:   {value: "No", basis: design, from: "作者 2026-10-14 決定 (費用のため、インピーダンス管理なし)"}
+  PCB Color:           {value: Green, basis: assumed, reason: "未定。レジスト放射率は色によらず 0.9 で計算", calc: "JLC 注文画面の既定値を選んだと仮定"}
+  Silkscreen:          {value: White, basis: assumed, reason: "未定。計算には使わない", calc: "JLC 注文画面の既定値を選んだと仮定"}
+  Board Outline Tolerance: {value: "±0.2mm(Regular)", basis: assumed, reason: "未定。計算には使わない", calc: "JLC 注文画面の既定値を選んだと仮定"}

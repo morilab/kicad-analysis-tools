@@ -1,0 +1,158 @@
+# pitfall-4l rev0.1 (正解付き 4 層の試験基板、リポジトリの testboards/pitfall-4l、読むだけ) の熱解析条件
+# 区画ごとに 1 つずつ通電する (expected.yaml thermal / coupled)。scenarios: に区画ごとの通電部品を書き、run_pitfall.py が 1 区画ずつ解く。
+# 条件は expected.yaml の値 (5.00 V、51 Ω / 22 Ω、AMS1117 0.3 A) を案件条件 (design) として写した。typ と max は同じ値 (抵抗で決まる)。
+project: pitfall-4l
+rev: "0.1"
+board: ../../data/board/pitfall-4l-rev0.1.yaml
+grid_mm: 0.25
+environment:                   # expected.yaml: 室温 25 ℃・無風・基板水平
+  orientation: horizontal_top_up
+  vertical_axis: y
+  airflow: {velocity_m_s: 0.0, direction: x}
+  emissivity: {top: 0.9, bottom: 0.9}
+  case: {enabled: false, internal_air_rise_c: 10, h_factor: 0.6, wall_rise_c: 10, wall_emissivity: 0.9}
+cases:
+  typ:   {environment: {ambient_c: 25}}
+  worst: {environment: {ambient_c: 25}}
+stackup: null
+plot: {tmin_c: 25, tmax_c: 95, cmap: inferno, over_color: "#9b30ff"}
+parts:
+  U1:
+    power:
+      model: ldo
+      vin: {value: 5.0, basis: design, from: "expected.yaml TH-LDO: J10 に 5.00 V"}
+      vout: {value: 3.3, basis: design, from: "AMS1117-3.3 の固定出力"}
+      iq: {value: 0.005, basis: assumed, reason: "expected.yaml の Pd の式の Iq 5 mA 仮定", calc: "5.0 V × 5 mA = 25 mW"}
+      loads:
+        - name: "負荷 22 Ω × 2 並列"
+          typ: {value: 0.300, basis: design, from: "expected.yaml TH-LDO: 22 Ω × 2 並列 → 0.300 A"}
+          max: {value: 0.300, basis: design, from: "同上"}
+  U2:
+    power:
+      model: ldo
+      vin: {value: 5.0, basis: design, from: "expected.yaml TH-LDO: J10 に 5.00 V"}
+      vout: {value: 3.3, basis: design, from: "AMS1117-3.3 の固定出力"}
+      iq: {value: 0.005, basis: assumed, reason: "expected.yaml の Pd の式の Iq 5 mA 仮定", calc: "5.0 V × 5 mA = 25 mW"}
+      loads:
+        - name: "負荷 22 Ω × 2 並列"
+          typ: {value: 0.300, basis: design, from: "expected.yaml TH-LDO: 22 Ω × 2 並列 → 0.300 A"}
+          max: {value: 0.300, basis: design, from: "同上"}
+  R7:
+    power:
+      model: vi
+      v: {value: 3.3, basis: design, from: "expected.yaml TH-LDO caveat: 負荷抵抗 22 Ω 各 0.495 W"}
+      currents:
+        - name: "抵抗の電流 3.3 V / 22 Ω"
+          typ: {value: 0.15, basis: design, from: "expected.yaml TH-LDO caveat: 負荷抵抗 22 Ω 各 0.495 W", calc: "3.3 V / 22 Ω = 150.0 mA"}
+          max: {value: 0.15, basis: design, from: "同上 (抵抗で決まるので typ = max)"}
+  R8:
+    power:
+      model: vi
+      v: {value: 3.3, basis: design, from: "expected.yaml TH-LDO caveat: 負荷抵抗 22 Ω 各 0.495 W"}
+      currents:
+        - name: "抵抗の電流 3.3 V / 22 Ω"
+          typ: {value: 0.15, basis: design, from: "expected.yaml TH-LDO caveat: 負荷抵抗 22 Ω 各 0.495 W", calc: "3.3 V / 22 Ω = 150.0 mA"}
+          max: {value: 0.15, basis: design, from: "同上 (抵抗で決まるので typ = max)"}
+  R9:
+    power:
+      model: vi
+      v: {value: 3.3, basis: design, from: "expected.yaml TH-LDO caveat: 負荷抵抗 22 Ω 各 0.495 W"}
+      currents:
+        - name: "抵抗の電流 3.3 V / 22 Ω"
+          typ: {value: 0.15, basis: design, from: "expected.yaml TH-LDO caveat: 負荷抵抗 22 Ω 各 0.495 W", calc: "3.3 V / 22 Ω = 150.0 mA"}
+          max: {value: 0.15, basis: design, from: "同上 (抵抗で決まるので typ = max)"}
+  R10:
+    power:
+      model: vi
+      v: {value: 3.3, basis: design, from: "expected.yaml TH-LDO caveat: 負荷抵抗 22 Ω 各 0.495 W"}
+      currents:
+        - name: "抵抗の電流 3.3 V / 22 Ω"
+          typ: {value: 0.15, basis: design, from: "expected.yaml TH-LDO caveat: 負荷抵抗 22 Ω 各 0.495 W", calc: "3.3 V / 22 Ω = 150.0 mA"}
+          max: {value: 0.15, basis: design, from: "同上 (抵抗で決まるので typ = max)"}
+  R11:
+    power:
+      model: vi
+      v: {value: 5.0, basis: design, from: "expected.yaml TH-DENSE/SPREAD/RELIEF: 5.00 V / 51 Ω = 0.490 W"}
+      currents:
+        - name: "抵抗の電流 5.0 V / 51 Ω"
+          typ: {value: 0.098, basis: design, from: "expected.yaml TH-DENSE/SPREAD/RELIEF: 5.00 V / 51 Ω = 0.490 W", calc: "5.0 V / 51 Ω = 98.0 mA"}
+          max: {value: 0.098, basis: design, from: "同上 (抵抗で決まるので typ = max)"}
+  R12:
+    power:
+      model: vi
+      v: {value: 5.0, basis: design, from: "expected.yaml TH-DENSE/SPREAD/RELIEF: 5.00 V / 51 Ω = 0.490 W"}
+      currents:
+        - name: "抵抗の電流 5.0 V / 51 Ω"
+          typ: {value: 0.098, basis: design, from: "expected.yaml TH-DENSE/SPREAD/RELIEF: 5.00 V / 51 Ω = 0.490 W", calc: "5.0 V / 51 Ω = 98.0 mA"}
+          max: {value: 0.098, basis: design, from: "同上 (抵抗で決まるので typ = max)"}
+  R13:
+    power:
+      model: vi
+      v: {value: 5.0, basis: design, from: "expected.yaml TH-DENSE/SPREAD/RELIEF: 5.00 V / 51 Ω = 0.490 W"}
+      currents:
+        - name: "抵抗の電流 5.0 V / 51 Ω"
+          typ: {value: 0.098, basis: design, from: "expected.yaml TH-DENSE/SPREAD/RELIEF: 5.00 V / 51 Ω = 0.490 W", calc: "5.0 V / 51 Ω = 98.0 mA"}
+          max: {value: 0.098, basis: design, from: "同上 (抵抗で決まるので typ = max)"}
+  R14:
+    power:
+      model: vi
+      v: {value: 5.0, basis: design, from: "expected.yaml TH-DENSE/SPREAD/RELIEF: 5.00 V / 51 Ω = 0.490 W"}
+      currents:
+        - name: "抵抗の電流 5.0 V / 51 Ω"
+          typ: {value: 0.098, basis: design, from: "expected.yaml TH-DENSE/SPREAD/RELIEF: 5.00 V / 51 Ω = 0.490 W", calc: "5.0 V / 51 Ω = 98.0 mA"}
+          max: {value: 0.098, basis: design, from: "同上 (抵抗で決まるので typ = max)"}
+  R15:
+    power:
+      model: vi
+      v: {value: 5.0, basis: design, from: "expected.yaml TH-DENSE/SPREAD/RELIEF: 5.00 V / 51 Ω = 0.490 W"}
+      currents:
+        - name: "抵抗の電流 5.0 V / 51 Ω"
+          typ: {value: 0.098, basis: design, from: "expected.yaml TH-DENSE/SPREAD/RELIEF: 5.00 V / 51 Ω = 0.490 W", calc: "5.0 V / 51 Ω = 98.0 mA"}
+          max: {value: 0.098, basis: design, from: "同上 (抵抗で決まるので typ = max)"}
+  R16:
+    power:
+      model: vi
+      v: {value: 5.0, basis: design, from: "expected.yaml TH-DENSE/SPREAD/RELIEF: 5.00 V / 51 Ω = 0.490 W"}
+      currents:
+        - name: "抵抗の電流 5.0 V / 51 Ω"
+          typ: {value: 0.098, basis: design, from: "expected.yaml TH-DENSE/SPREAD/RELIEF: 5.00 V / 51 Ω = 0.490 W", calc: "5.0 V / 51 Ω = 98.0 mA"}
+          max: {value: 0.098, basis: design, from: "同上 (抵抗で決まるので typ = max)"}
+  R17:
+    power:
+      model: vi
+      v: {value: 5.0, basis: design, from: "expected.yaml TH-DENSE/SPREAD/RELIEF: 5.00 V / 51 Ω = 0.490 W"}
+      currents:
+        - name: "抵抗の電流 5.0 V / 51 Ω"
+          typ: {value: 0.098, basis: design, from: "expected.yaml TH-DENSE/SPREAD/RELIEF: 5.00 V / 51 Ω = 0.490 W", calc: "5.0 V / 51 Ω = 98.0 mA"}
+          max: {value: 0.098, basis: design, from: "同上 (抵抗で決まるので typ = max)"}
+  R18:
+    power:
+      model: vi
+      v: {value: 5.0, basis: design, from: "expected.yaml TH-DENSE/SPREAD/RELIEF: 5.00 V / 51 Ω = 0.490 W"}
+      currents:
+        - name: "抵抗の電流 5.0 V / 51 Ω"
+          typ: {value: 0.098, basis: design, from: "expected.yaml TH-DENSE/SPREAD/RELIEF: 5.00 V / 51 Ω = 0.490 W", calc: "5.0 V / 51 Ω = 98.0 mA"}
+          max: {value: 0.098, basis: design, from: "同上 (抵抗で決まるので typ = max)"}
+  R19:
+    power:
+      model: vi
+      v: {value: 5.0, basis: design, from: "expected.yaml TH-DENSE/SPREAD/RELIEF: 5.00 V / 51 Ω = 0.490 W"}
+      currents:
+        - name: "抵抗の電流 5.0 V / 51 Ω"
+          typ: {value: 0.098, basis: design, from: "expected.yaml TH-DENSE/SPREAD/RELIEF: 5.00 V / 51 Ω = 0.490 W", calc: "5.0 V / 51 Ω = 98.0 mA"}
+          max: {value: 0.098, basis: design, from: "同上 (抵抗で決まるので typ = max)"}
+  R20:
+    power:
+      model: vi
+      v: {value: 5.0, basis: design, from: "expected.yaml TH-DENSE/SPREAD/RELIEF: 5.00 V / 51 Ω = 0.490 W"}
+      currents:
+        - name: "抵抗の電流 5.0 V / 51 Ω"
+          typ: {value: 0.098, basis: design, from: "expected.yaml TH-DENSE/SPREAD/RELIEF: 5.00 V / 51 Ω = 0.490 W", calc: "5.0 V / 51 Ω = 98.0 mA"}
+          max: {value: 0.098, basis: design, from: "同上 (抵抗で決まるので typ = max)"}
+scenarios:                     # 区画ごとに同時に通電する部品 (expected.yaml thermal / coupled)
+  ldo:    {parts: [U1, U2, R7, R8, R9, R10], note: "TH-LDO-VIA / TH-LDO-NOVIA (J10、両 LDO と負荷抵抗を同時に通電)"}
+  dense:  {parts: [R11, R12, R13, R14], note: "TH-DENSE (J11 だけ)"}
+  spread: {parts: [R15, R16, R17, R18], note: "TH-SPREAD (J12 だけ)"}
+  relief: {parts: [R19, R20], note: "TH-RELIEF / TH-SOLID (J13)"}
+  th1a:   {parts: [], joule: {net: /TH_1A, source: [J4, "1"], sink: [J5, "1"], current_a: 1.0}, note: "TH-1A (J4.1 → J5.1 に 1.00 A、ジュール熱だけ)"}
+  cp1a5:  {parts: [], joule: {net: /CP_1A5, source: [J6, "1"], sink: [J7, "1"], current_a: 1.5}, coupled: true, note: "CP-1A5 (J6.1 → J7.1 に 1.50 A、熱 ⇄ IR 連成)"}

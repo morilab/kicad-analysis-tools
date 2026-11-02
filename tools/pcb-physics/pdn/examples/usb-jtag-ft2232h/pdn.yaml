@@ -1,0 +1,46 @@
+# usb-jtag-ft2232h rev0.2 の PDN 条件 (pdn/run.py)。値は値オブジェクト (basis 必須)。2026-10-14 作者 決定 ①〜⑥ に従う
+ripple:                          # ① 許容リップル = (源の最低電圧 − ピン許容最小 − IR ドロップ最悪) × ratio
+  ratio: {value: 0.5, basis: design, from: "2026-10-14 作者 決定 ①: 予算方式 × 0.5 (設定可能)"}
+  ir_rows: {value: out/irdrop-ft2232h-rev0.2, basis: design, from: "irdrop 連成後の結果 (irdrop-v0.1 e762305、熱も 0.1 mm。rows_typ.json / rows_worst.json)。降下は worst"}
+delta_i: {from: "② ΔI = 部品 YAML のピン電流 max − typ (irdrop の worst − typ)。max が typ 以下 (記載なし) なら typ の 2 倍を最悪と仮定 (ΔI = typ)"}
+analysis:
+  f_min: {value: 1.0e4, basis: design, from: "③ 解析範囲 10 kHz〜500 MHz"}
+  f_max: {value: 5.0e8, basis: design, from: "③"}
+  points_per_decade: {value: 40, basis: design, from: "表示の分解能"}
+  f_judge_max: {value: 5.0e7, basis: design, from: "2026-10-14 作者 決定: PDN の判定上限 50 MHz (基板で判定できる範囲)。判定上限 = min(0.35/tr, 準静的の上限, この値)"}
+  eps_r: {value: 4.5, basis: assumed, reason: "格子 meta.layers[].er_below が無いときだけ使う (現在の格子は基板 YAML からコア 4.6)。JLCPCB 標準 FR-4 (stackup 未定)", calc: "準静的の上限 f_qs = c / (10 · 基板の長辺 · √((εr+1)/2))"}
+nets: [VBUS, +3V3, +3.3VA, /+3V3_EXT, +1V8]
+judged: [+3V3, +1V8, +3.3VA, VBUS]
+gnd: GND
+ground_node: {ref: U3, pin: "2"}     # 回路の基準 (どこでも結果は同じ、数値のため)
+rail_v:                          # コンデンサの DC バイアス (⑥) に使う直流電圧
+  VBUS: 5.0
+  +3V3: 3.3
+  +3.3VA: 3.3
+  /+3V3_EXT: 3.3
+  +1V8: 1.8
+sources:                         # ⑤ VBUS のホスト・ケーブルは含めない (J1 を理想源)
+  host: {kind: ideal, ref: J1, power: [A4, A9, B4, B9], gnd: [A1, A12, B1, B12]}
+  U3: {kind: regulator, ref: U3, out: "3", gnd: "2", part: C500795}
+  U1reg: {kind: regulator, ref: U1, out: "49", gnd: nearest, part: C27882, pin: "49"}   # gnd: 49 に最も近い U1 の GND ピン
+band_limited_loads:              # ④ LDO 入力の ΔI をレギュレータの帯域で制限 (一次遅れ ΔI / (1 + j f / f_bw))。f_bw は部品 YAML の zout.f_bw
+  U1.50: {part: C27882, pin: "49", why: "VREGIN は内蔵 1.8 V LDO の入力。コアの速い電流変動は +1V8 側のコンデンサが供給し、VREGIN に出るのは LDO の帯域まで"}
+series:
+  FB1: {kind: bead, ref: FB1, a: "1", b: "2", part: C1015}   # 0f23a49 で GZ1608D601TF (C1002) → GZ2012D101TF (C1015)
+  F1: {kind: resistor, ref: F1, a: "1", b: "2", part: C207020}
+clocks:                          # ③ tr = クロック周期の 10%、判定上限 f_judge = 0.35 / tr = 3.5 × f_clk (これを正とする。FT2232H 120 MHz → 420 MHz)。
+                                 # ただし準静的モデルの上限 f_qs (≈ 348 MHz) より上は判定せず info (⑤、README に明記)
+  U1: {value: 120.0e6, basis: datasheet, part: C27882, from: "FT2232H 内部クロック 120 MHz (作者 指示 ③)"}
+  U5: {value: 30.0e6, basis: assumed, reason: "SN74AVC4T774 は JTAG 信号 (FT2232H MPSSE の TCK 最大 30 MHz)", calc: "30 MHz"}
+  U6: {value: 3.0e6, basis: assumed, reason: "SN74AVC2T245 は UART (FT2232H 最大 3 Mbaud)", calc: "3 MHz"}
+  U4: {value: 1.0e6, basis: assumed, reason: "93LC56 EEPROM の EECLK (FT2232H の読み出し時、MHz 以下)", calc: "1 MHz"}
+  J4: {value: 30.0e6, basis: assumed, reason: "外部機器は不明。MPSSE の最大 TCK", calc: "30 MHz"}
+  J5: {value: 30.0e6, basis: assumed, reason: "同上", calc: "30 MHz"}
+  J6: {value: 30.0e6, basis: assumed, reason: "同上", calc: "30 MHz"}
+  J7: {value: 30.0e6, basis: assumed, reason: "同上", calc: "30 MHz"}
+f_judge_direct:                  # クロックでなく直接与える判定上限
+  U3: {value: 1.0e6, basis: assumed, reason: "U3.1 (LDO 入力) の電流変動は LDO のループ帯域 (≈100 kHz) 程度で、それより上は出力コンデンサが供給", calc: "1 MHz"}
+reference_only:                  # ③ 参考 (判定しない)
+  - {f: 4.8e8, label: "USB HS 480 MHz (参考)"}
+ineffective_rel: {value: 0.05, basis: design, from: "1 個外したときに、同じ系統の各ピンの判定範囲内の Z_eff 最大値の変化がすべて < 5% なら『効いていない』とする"}
+dc_bias_warn: {value: 0.6, basis: design, from: "⑥ DC バイアスで容量が 60% 未満に下がるコンデンサを指摘 (4.7 µF 0402 を想定)"}

@@ -1,0 +1,48 @@
+# GZ2012D101TF (0805 積層フェライトビーズ)。値オブジェクトの書き方は thermal/parts.py の先頭 (basis 必須)
+# 熱抵抗はデータシートに無い (受動部品)。熱側は発熱を pad 直下に置き、pad 温度を表示する。
+# IR ドロップ側 (2026-10-14、pdn-v0.1): 当初は LCSC 掲載カタログ (2024-06-28 版、D101 の記載なし) で dc_resistance / bead_model を作成。
+# 2026-10-16 main (d495b2f) との merge で、熱側が取得した品番別 SPEC (GZ10190000 Rev.01、下記 datasheet) を正とし、DCR 最大は datasheet 根拠に更新。
+#   dc_resistance (irdrop/pdn が読む) と dcr (熱側 thermal.yaml が参照) は同じ値。bead_model の曲線は SPEC p.4 の Impedance-Frequency 図では未照合 (カタログの D080/D121 内挿のまま)
+lcsc: C1015
+mpn: GZ2012D101TF
+maker: Shenzhen Sunlord Electronics
+package: "0805 (2012 metric)"
+datasheet: {title: "Specifications for Multi-layer Chip Ferrite Bead GZ2012D101TF", doc: "SPEC No. GZ10190000", rev: "Rev. 01 (New release、PDF 作成 2019-08-20)", url: "https://atta.szlcsc.com/upload/public/pdf/source/20250718/5DE1598387527632E7DC3776CC0B4356.pdf"}
+dcr:
+  typ:
+    value: 0.10
+    basis: assumed
+    reason: "データシートは DCR の最大値だけ (p.4 3. Electrical Characteristics の表に『DCR (Ω) Max.』の列のみ、標準値の記載なし)。積層フェライトビーズの DCR 標準は最大の 6〜7 割が多いので 2/3 を置いた"
+    calc: "DCR typ ≈ 0.15 Ω × 2/3 = 0.10 Ω (仮定。0.15 Ω を使っても発熱は 0.15/0.10 = 1.5 倍)"
+  max: {value: 0.15, basis: datasheet, src: {page: 4, table: "3. Electrical Characteristics", item: "DCR (Ω) Max. 0.15"}}
+rated_current:
+  value: 0.800
+  basis: datasheet
+  src: {page: 4, table: "3. Electrical Characteristics", item: "Ir (mA) Max. 800。定義は p.6 5.3.3 d: 部品表面の温度上昇が 20 ℃ になる直流電流。1000 mA 超の品種は +85 ℃ 超で軽減 (5.3.3 e、本品 800 mA は対象外)"}
+impedance:
+  value: 100
+  basis: datasheet
+  src: {page: 4, table: "3. Electrical Characteristics / Impedance Frequency Characteristics", item: "Impedance 100 Ω ±25% @ 100 MHz (測定 E4991A + HP16192A、p.5 5.3.2)"}
+operating_temp_low_c: {value: -55, basis: datasheet, src: {page: 4, table: "3. Electrical Characteristics の注 1)", item: "Operating and storage temperature range (individual chip without packing): -55 ℃ ~ +125 ℃"}}
+operating_temp_high_c: {value: 125, basis: datasheet, src: {page: 4, table: "3. Electrical Characteristics の注 1)", item: "同上 +125 ℃"}}
+tj_max: {value: null, checked: "p.4 (半導体でないので接合温度なし。使用温度上限 125 ℃ は operating_temp_high_c)"}
+theta:
+  ja: {value: null, checked: "全 10 ページ (熱抵抗の記載なし)"}
+  jb: {value: null, checked: "同上"}
+  jc_bottom: {value: null, checked: "同上"}
+  jc_top: {value: null, checked: "同上"}
+  psi_jb: {value: null, checked: "同上"}
+exposed_pad: {value: false, basis: datasheet, src: {page: 5, table: "4. Shape and Dimensions Fig.4-1", item: "2 端子チップ (電極 2 個)"}}
+tab: {value: false, basis: datasheet, src: {page: 5, table: "4. Shape and Dimensions Fig.4-1", item: "2 端子チップ"}}
+extracted: {by: "pdftotext -layout + 目視 (AI)", date: 2026-10-14, checked_by: null}
+dc_resistance:                    # irdrop/run.py・pdn/run.py が読む (dcr と同じ値 + 温度係数)
+  max: {value: 0.15, basis: datasheet, src: {page: 4, table: "3. Electrical Characteristics", item: "DCR (Ω) Max. 0.15"}, calc: "0.15 Ω (最大値)"}
+  typ: {value: 0.10, basis: assumed, reason: "標準値の記載なし (SPEC p.4 は Max. のみ)。C1002 と同じく最大値の 2/3 (dcr.typ と同じ)", calc: "0.15 × 2/3 = 0.10 Ω"}
+  tc_per_c: {value: 0.0038, basis: assumed, reason: "温度係数の記載なし。内部電極は銀 (C1002 と同じ)", calc: "α_Ag = 0.0038 /℃"}
+  t_ref_c: {value: 25, basis: assumed, reason: "測定温度の記載なし", calc: "25 ℃"}
+bead_model:                       # PDN 用: DCR + (L ∥ Rp ∥ C)。D101 の曲線が無いので、掲載 PDF p.10 GZ2012 TYPE の隣の品番 D080 / D121 の曲線から内挿
+  # 読み取り (目視): D080 ピーク |Z| 約 130 Ω @約 600 MHz、D121 ピーク 約 190 Ω @約 400 MHz、|Z(100 MHz)| はそれぞれ表の 80 / 120 Ω
+  # 当てはめ (ピーク = Rp、共振 = ピーク周波数、|Z(100 MHz)| を合わせて L・C を解く): D080 → L 0.157 µH・C 0.45 pF、D121 → L 0.231 µH・C 0.69 pF
+  l: {value: 0.196e-6, basis: assumed, reason: "D101 は曲線なし。D080/D121 の間 (Rp 160 Ω、共振 500 MHz) とし |Z(100 MHz)| = 100 Ω から解いた", calc: "|Z(100 MHz)| = 100 Ω、Rp 160 Ω、f0 500 MHz → L 0.196 µH"}
+  r: {value: 160, basis: assumed, reason: "D080 130 Ω と D121 190 Ω のピークの内挿 (p.10)", calc: "(130 + 190)/2 = 160 Ω"}
+  c: {value: 0.52e-12, basis: assumed, reason: "共振 500 MHz (D080 600 / D121 400 MHz の中間) から", calc: "1 / ((2π·500 MHz)² · 0.196 µH) = 0.52 pF"}

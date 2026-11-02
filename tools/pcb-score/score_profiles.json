@@ -1,0 +1,25 @@
+{
+ "_doc": "配置・基板の比較スコア (2026-10-15 作者 決定)。S = Σ w_i × s_i − 1000 × 軽い違反数。上限なし、高いほど良い。s_i は基準版 (既定: 各プロジェクトの現行版) を 100 とした比。low: 100×基準/max(値, floor×基準)、high: 100×値/基準。ハード制約違反 (feasible=false) の案は順位から外す。kreview の 0-100 点は製造前の合否判定用で、このスコアとは別物。",
+ "soft_penalty": 1000,
+ "floor": 0.25,
+ "items": {
+  "area":          {"dir": "low",  "keys": ["area", "board_area"],                 "label": "面積 mm2"},
+  "wirelen":       {"dir": "low",  "keys": ["mst_sig", "mst_signal", "hpwl_sig", "hpwl_signal"],              "label": "信号配線長見積 (MST) mm"},
+  "pwr_wirelen":   {"dir": "low",  "keys": ["hpwl_pwr", "hpwl_power"],             "label": "電源配線長見積 (HPWL) mm"},
+  "crossings":     {"dir": "low",  "keys": ["crossings"],                          "label": "ラッツネスト交差数"},
+  "crossings_hdr": {"dir": "low",  "keys": ["crossings_hdr"],                      "label": "うちヘッダ配線の交差数"},
+  "vias":          {"dir": "low",  "keys": ["vias_per_signal_net"],                "label": "via / 信号ネット (配線後のみ)"},
+  "usb":           {"dir": "low",  "keys": ["usb_total_mm", "usb_mm"],             "label": "USB 差動距離 mm"},
+  "far_empty":     {"dir": "low",  "keys": ["far_empty", "far_empty_ratio"],       "label": "2 mm 以上の空き率"},
+  "density":       {"dir": "high", "keys": ["density"],                            "label": "密度"},
+  "detour":        {"dir": "low",  "keys": ["detour"],                             "label": "配線の遠回り率 (配線後のみ)"},
+  "thermal":       {"dir": "high", "keys": ["thermal_margin_c", "pwr_clear"],      "label": "熱: 最高温度の余裕 ℃ (配置段階は電源部品の周りの空き率)"}
+ },
+ "profiles": {
+  "default": {"area": 1.0, "wirelen": 1.0, "pwr_wirelen": 0.5, "crossings": 1.0, "crossings_hdr": 0.3, "vias": 0.5, "usb": 1.0, "far_empty": 0.5, "density": 0.5, "detour": 0.5, "thermal": 0.5},
+  "size":    {"area": 3.0, "wirelen": 0.5, "pwr_wirelen": 0.3, "crossings": 0.5, "crossings_hdr": 0.2, "vias": 0.3, "usb": 0.5, "far_empty": 1.5, "density": 2.0, "detour": 0.3, "thermal": 0.0},
+  "signal":  {"area": 0.5, "wirelen": 2.5, "pwr_wirelen": 0.5, "crossings": 2.0, "crossings_hdr": 0.5, "vias": 1.5, "usb": 3.0, "far_empty": 0.3, "density": 0.3, "detour": 1.5, "thermal": 0.3},
+  "thermal": {"area": 0.3, "wirelen": 0.8, "pwr_wirelen": 2.0, "crossings": 0.5, "crossings_hdr": 0.2, "vias": 0.5, "usb": 0.5, "far_empty": -0.5, "density": -0.5, "detour": 0.3, "thermal": 3.0},
+  "cost":    {"area": 2.0, "wirelen": 1.0, "pwr_wirelen": 0.5, "crossings": 1.5, "crossings_hdr": 0.5, "vias": 2.0, "usb": 0.5, "far_empty": 0.5, "density": 1.0, "detour": 0.5, "thermal": 0.0}
+ }
+}
